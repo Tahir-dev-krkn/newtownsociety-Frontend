@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 
+const API = process.env.NEXT_PUBLIC_API_URL;
+
 
 import { Bar } from "react-chartjs-2";
 import {
@@ -153,7 +155,7 @@ function showToast(message, type = "success") {
 
   // ================= ADMIN =================
   if (r === "admin") {
-    fetch("http://localhost:5000/members", {
+    fetch(`${API}/members`, {
       headers: { Authorization: t }
     })
       .then(res => res.json())
@@ -167,7 +169,7 @@ function showToast(message, type = "success") {
 
   // ================= OWNER =================
   else if (r === "owner") {
-    fetch("http://localhost:5000/my-dashboard", {
+    fetch(`${API}/my-dashboard`, {
       headers: { Authorization: t }
     })
       .then(res => res.json())
@@ -204,7 +206,7 @@ useEffect(() => {
   // ================= LOGIN FUNCTION =================
   async function login() {
 
-  const res = await fetch("http://localhost:5000/login", {
+  const res = await fetch(`${API}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -240,7 +242,7 @@ useEffect(() => {
 }
 
   async function sendReminder(memberId) {
-  const res = await fetch("http://localhost:5000/send-reminder", {
+  const res = await fetch(`${API}/send-reminder`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -254,7 +256,7 @@ useEffect(() => {
 }
 
   async function payNow(p) {
-  const res = await fetch("http://localhost:5000/create-order", {
+  const res = await fetch(`${API}/create-order`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -272,7 +274,7 @@ useEffect(() => {
 
     handler: async function (response) {
 
-      await fetch("http://localhost:5000/verify-payment", {
+      await fetch(`${API}/verify-payment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -301,7 +303,7 @@ async function loadData() {
   if (role === "admin") {
 
   // MEMBERS DATA
-  const res = await fetch("http://localhost:5000/members", {
+  const res = await fetch(`${API}/members`, {
     headers: { Authorization: token }
   });
 
@@ -312,7 +314,7 @@ async function loadData() {
   // HISTORY PAGE
   if (page === "history") {
 
-    const paymentRes = await fetch("http://localhost:5000/all-payments", {
+    const paymentRes = await fetch(`${API}/all-payments`, {
       headers: { Authorization: token }
     });
 
@@ -324,7 +326,7 @@ async function loadData() {
 
 
   if (role === "owner") {
-    const res = await fetch("http://localhost:5000/my-dashboard", {
+    const res = await fetch(`${API}/my-dashboard`, {
       headers: { Authorization: token }
     });
     const d = await res.json();
@@ -346,7 +348,7 @@ async function downloadExcel() {
     params.append("flat", excelFlat.trim());
   }
 
-  const url = `http://localhost:5000/export?${params.toString()}`;
+  const url = `${API}/export?${params.toString()}`;
 
   console.log("FINAL URL:", url); // 🔥 DEBUG
 
@@ -369,7 +371,7 @@ async function sendOtp() {
     return;
   }
 
-  await fetch("http://localhost:5000/send-otp", {
+  await fetch(`${API}/send-otp`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -387,7 +389,7 @@ async function verifyOtp() {
     return;
   }
 
-  const res = await fetch("http://localhost:5000/verify-otp", {
+  const res = await fetch(`${API}/verify-otp`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -432,7 +434,7 @@ async function exportHistory() {
     });
 
   // 🔥 send to backend
-  const res = await fetch("http://localhost:5000/export-history", {
+  const res = await fetch(`${API}/export-history`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -456,7 +458,7 @@ async function updateProfile() {
 console.log(data?._id);
 console.log(data?.user?._id);
 
-  const res = await fetch("http://localhost:5000/update-profile", {
+  const res = await fetch(`${API}/update-profile`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json"
@@ -473,7 +475,7 @@ console.log(data?.user?._id);
   alert(msg);
 
   // ✅ REFRESH OWNER DATA
-  const refresh = await fetch("http://localhost:5000/my-dashboard", {
+  const refresh = await fetch(`${API}/my-dashboard`, {
     headers: {
       Authorization: token
     }
@@ -677,7 +679,7 @@ const pendingMembers = (safeData || [])
 onClick={async ()=>{
 
   const res = await fetch(
-    "http://localhost:5000/complaints",
+      `${API}/add-complaint`,
     {
       headers:{
         Authorization: token
@@ -1530,7 +1532,7 @@ onMouseLeave={(e)=> e.currentTarget.style.transform="scale(1)"}
 }
 
 async function addMember() {
-  const res = await fetch("http://localhost:5000/add-member", {
+  const res = await fetch(`${API}/add-member`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -1559,7 +1561,7 @@ async function deleteMember(id) {
   const confirmDelete = confirm("Delete this member?");
   if (!confirmDelete) return;
 
-  await fetch(`http://localhost:5000/member/${id}`, {
+  await fetch(`${API}/member/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: token
@@ -1585,7 +1587,7 @@ function editMember(m) {
 }
 
 async function updateMember() {
-  await fetch(`http://localhost:5000/member/${editData._id}`, {
+  await fetch(`${API}/member/${editData._id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -1645,7 +1647,7 @@ const amount = months * monthlyMaintenance;
 
   // ✅ API call continues below
 
-  await fetch("http://localhost:5000/add-due", {
+  await fetch(`${API}/add-due`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -2939,7 +2941,7 @@ if (token && role === "owner" && page === "support") {
     }
 
     const res = await fetch(
-      "http://localhost:5000/add-complaint",
+      `${API}/add-complaint`,
       {
         method: "POST",
         headers: {
