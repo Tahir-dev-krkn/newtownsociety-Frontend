@@ -3196,81 +3196,67 @@ if (!token && page === "login") {
 // ================= LANDING =================
 if (!token && page === "landing") {
   return (
-  <div style={{
-    height: "100vh",
-    background: "linear-gradient(135deg, #0f2027, #203a43, #2c5364)",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    color: "white",
-    textAlign: "center",
-    padding: 20
-  }}>
-
-    <h1 style={{
-      fontSize: "42px",
-      fontWeight: "700"
+    <div style={{
+      height: "100vh",
+      background: "linear-gradient(135deg, #0f2027, #203a43, #2c5364)",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      color: "white",
+      textAlign: "center",
+      padding: 20
     }}>
-      🏢 NEW TOWN SOCIETY
-    </h1>
 
-    <p style={{
-      opacity: 0.7,
-      marginTop: 10,
-      maxWidth: 400
-    }}>
-      Smart maintenance tracking, payments & automation for modern societies.
-    </p>
+      <h1 style={{
+        fontSize: "42px",
+        fontWeight: "700"
+      }}>
+        🏢 NEW TOWN SOCIETY
+      </h1>
 
-    <button
-      onClick={()=>setPage("login")}
-      style={{
-        marginTop: 30,
-        padding: "14px 30px",
-        borderRadius: "30px",
-        border: "none",
-        background: "linear-gradient(45deg,#6a11cb,#2575fc)",
-        color: "white",
-        fontSize: "16px",
-        cursor: "pointer",
-        transition: "0.3s"
-      }}
-      onMouseEnter={(e)=> e.currentTarget.style.transform="scale(1.05)"}
-      onMouseLeave={(e)=> e.currentTarget.style.transform="scale(1)"}
-    >
-<div style={{
-  marginTop: 40,
-  display: "flex",
-  gap: 20,
-  flexWrap: "wrap",
-  justifyContent: "center",
-  opacity: 0.8,
-  fontSize: 14
-}}>
+      <p style={{
+        opacity: 0.7,
+        marginTop: 10,
+        maxWidth: 400
+      }}>
+        Smart maintenance tracking, payments & automation for modern societies.
+      </p>
 
-  <a href="/privacy-policy" style={{color:"white"}}>
-    Privacy Policy
-  </a>
+      <button
+        onClick={() => setPage("login")}
+        style={{
+          marginTop: 30,
+          padding: "14px 30px",
+          borderRadius: "30px",
+          border: "none",
+          background: "linear-gradient(45deg,#6a11cb,#2575fc)",
+          color: "white",
+          fontSize: "16px",
+          cursor: "pointer",
+          transition: "0.3s"
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+        onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+      >
+        🚀 Get Started
+      </button>
 
-  <a href="/terms" style={{color:"white"}}>
-    Terms
-  </a>
+      <div style={{
+        marginTop: 40,
+        display: "flex",
+        gap: 20,
+        flexWrap: "wrap",
+        justifyContent: "center",
+        opacity: 0.8,
+        fontSize: 14
+      }}>
+        <a href="#" style={{ color: "white", textDecoration: "none" }}>Privacy Policy</a>
+        <a href="#" style={{ color: "white", textDecoration: "none" }}>Terms</a>
+        <a href="#" style={{ color: "white", textDecoration: "none" }}>Refund Policy</a>
+        <a href="#" style={{ color: "white", textDecoration: "none" }}>Contact</a>
+      </div>
 
-  <a href="/refund-policy" style={{color:"white"}}>
-    Refund Policy
-  </a>
-
-  <a href="/contact" style={{color:"white"}}>
-    Contact
-  </a>
-
-</div>
-
-      🚀 Get Started
-    </button>
-
-  </div>
-);
-}
-}
+    </div>
+  );
+}}
