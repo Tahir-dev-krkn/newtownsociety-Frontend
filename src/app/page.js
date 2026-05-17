@@ -591,15 +591,17 @@ const pendingMembers = (safeData || [])
   return (
     <div style={{
       display: "flex",
-      height: "100vh",
+      flexDirection: window.innerWidth < 768 ? "column" : "row",
+      minHeight: "100vh",
       background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)",
       color: "white"
     }}>
 
       {/* ================= SIDEBAR ================= */}
       <div style={{
-  width: "240px",
-  padding: "25px 15px",
+  width: window.innerWidth < 768 ? "100%" : "240px",
+  overflowX: "auto",
+whiteSpace: "nowrap",
   borderRight: "1px solid rgba(255,255,255,0.08)",
   background: "rgba(255,255,255,0.03)",
   backdropFilter: "blur(12px)"
@@ -666,7 +668,8 @@ const pendingMembers = (safeData || [])
       {/* ================= MAIN ================= */}
       <div style={{
         flex: 1,
-        padding: 20
+padding: window.innerWidth < 768 ? 12 : 20,
+overflowX: "hidden"
       }}>
 
         <div style={{
@@ -713,9 +716,8 @@ onClick={async ()=>{
 
         <div style={{
   marginTop: 40,
-  background: "rgba(255,255,255,0.05)",
-  padding: 20,
-  borderRadius: 15
+  overflowX: "auto",
+  padding: 20
 }}>
   <h3>📊 Collection Overview</h3>
 
@@ -724,10 +726,10 @@ onClick={async ()=>{
 
         {/* ================= CARDS ================= */}
         <div style={{
-  display: "flex",
-  gap: 20,
-  marginTop: 25,
-  flexWrap: "wrap"
+  display: "grid",
+gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+gap: 20,
+marginTop: 25
 }}>
 
   {/* MEMBERS */}
@@ -1255,7 +1257,8 @@ onMouseLeave={(e)=> e.currentTarget.style.transform="scale(1)"}
         onChange={(e)=>setSearch(e.target.value)}
         style={{
   padding: "12px",
-  width: "280px",
+  width: "100%",
+maxWidth: "280px",
   borderRadius: "10px",
   border: "1px solid rgba(255,255,255,0.1)",
   background: "rgba(255,255,255,0.05)",
@@ -1470,7 +1473,8 @@ onMouseLeave={(e)=> e.currentTarget.style.transform="scale(1)"}
 
     {/* 🧾 FORM CARD */}
     <div style={{
-      width: 350,
+      width: "100%",
+maxWidth: 350,
       padding: 30,
       borderRadius: 15,
       background: "rgba(255,255,255,0.08)",
@@ -1716,7 +1720,8 @@ if (token && role === "admin" && page === "editMember") {
     </button>
 
     <div style={{
-      width: 350,
+      width: "100%",
+maxWidth: 350,
       padding: 30,
       borderRadius: 15,
       background: "rgba(255,255,255,0.08)",
@@ -1815,7 +1820,8 @@ const months = [
     </button>
 
     <div style={{
-      width: 360,
+      width: "100%",
+      maxWidth: 360,
       padding: 30,
       borderRadius: 15,
       background: "rgba(255,255,255,0.08)",
@@ -1919,7 +1925,8 @@ if (token && role === "admin" && page === "excel") {
 
     {/* 📊 CARD */}
     <div style={{
-      width: 360,
+      width: "100%",
+maxWidth: 360,
       padding: 30,
       borderRadius: 15,
       background: "rgba(255,255,255,0.08)",
@@ -3066,7 +3073,8 @@ if (!token && page === "login") {
     }}>
 
       <div style={{
-        width: 340,
+        width: "100%",
+        maxWidth: 340,
         padding: 30,
         borderRadius: 15,
         background: "rgba(255,255,255,0.08)",
