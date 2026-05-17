@@ -3243,7 +3243,7 @@ if (!token && page === "landing") {
       </button>
 
       <div style={{
-        marginTop: 40,
+        marginTop: 20,
         display: "flex",
         gap: 20,
         flexWrap: "wrap",
@@ -3251,10 +3251,21 @@ if (!token && page === "landing") {
         opacity: 0.8,
         fontSize: 14
       }}>
-        <a href="#" style={{ color: "white", textDecoration: "none" }}>Privacy Policy</a>
-        <a href="#" style={{ color: "white", textDecoration: "none" }}>Terms</a>
-        <a href="#" style={{ color: "white", textDecoration: "none" }}>Refund Policy</a>
-        <a href="#" style={{ color: "white", textDecoration: "none" }}>Contact</a>
+        <a href="#" style={{ color: "white", textDecoration: "none" }}>
+          Privacy Policy
+        </a>
+
+        <a href="#" style={{ color: "white", textDecoration: "none" }}>
+          Terms
+        </a>
+
+        <a href="#" style={{ color: "white", textDecoration: "none" }}>
+          Refund Policy
+        </a>
+
+        <a href="#" style={{ color: "white", textDecoration: "none" }}>
+          Contact
+        </a>
       </div>
 
     </div>
