@@ -32,6 +32,7 @@ import {
   Search,
   Send,
   ShieldCheck,
+  Smartphone,
   Trash2,
   User,
   UserPlus,
@@ -285,9 +286,56 @@ function LoadingScreen() {
   );
 }
 
+function OpeningScreen({ onStart }) {
+  return (
+    <main className="landing-screen">
+      <section className="landing-hero">
+        <Brand />
+        <div className="landing-copy">
+          <p className="eyebrow">NEW TOWN SOCIETY</p>
+          <h1>Maintenance payments made simple for every flat owner.</h1>
+          <p>
+            Owners can pay dues, view history, update profiles, and raise support
+            requests. Admins can manage members, reminders, complaints, and reports.
+          </p>
+        </div>
+
+        <div className="landing-actions">
+          <button className="primary-button" onClick={onStart} type="button">
+            <ShieldCheck aria-hidden="true" size={18} strokeWidth={2.3} />
+            Login securely
+          </button>
+          <a className="secondary-link-button" href="/privacy-policy">
+            Privacy policy
+          </a>
+        </div>
+      </section>
+
+      <section className="landing-card-grid" aria-label="App highlights">
+        <article className="landing-card">
+          <WalletCards aria-hidden="true" size={28} strokeWidth={2.3} />
+          <h2>Owner app</h2>
+          <p>Pay maintenance, check dues, receipts, and support from phone.</p>
+        </article>
+        <article className="landing-card">
+          <Gauge aria-hidden="true" size={28} strokeWidth={2.3} />
+          <h2>Admin control</h2>
+          <p>Track collection, members, pending dues, complaints, and exports.</p>
+        </article>
+        <article className="landing-card">
+          <Smartphone aria-hidden="true" size={28} strokeWidth={2.3} />
+          <h2>Installable</h2>
+          <p>Works on web and can be installed like a mobile app.</p>
+        </article>
+      </section>
+    </main>
+  );
+}
+
 function AuthScreen({
   authMode,
   setAuthMode,
+  setPage,
   flat,
   setFlat,
   password,
@@ -298,6 +346,10 @@ function AuthScreen({
   setOtp,
   newPassword,
   setNewPassword,
+  verifyEmailOtp,
+  setVerifyEmailOtp,
+  verifyEmail,
+  verificationEmail,
   login,
   sendOtp,
   verifyOtp,
@@ -332,12 +384,23 @@ function AuthScreen({
       </section>
 
       <section className="auth-card">
+        <button
+          className="text-button inline"
+          onClick={() => setPage("landing")}
+          type="button"
+        >
+          <ArrowLeft aria-hidden="true" size={16} strokeWidth={2.3} />
+          Opening page
+        </button>
+
         <h2>
           {authMode === "login"
             ? "Login"
             : authMode === "forgot"
               ? "Reset password"
-              : "Verify OTP"}
+              : authMode === "emailVerify"
+                ? "Verify email"
+                : "Verify OTP"}
         </h2>
 
         {authMode === "login" && (
@@ -364,6 +427,42 @@ function AuthScreen({
               type="button"
             >
               Forgot password
+            </button>
+          </>
+        )}
+
+        {authMode === "emailVerify" && (
+          <>
+            <div className="verification-note">
+              <Mail aria-hidden="true" size={20} strokeWidth={2.3} />
+              <div>
+                <strong>Email verification required</strong>
+                <p>
+                  Enter the OTP sent to {verificationEmail || "your registered email"}.
+                </p>
+              </div>
+            </div>
+
+            <TextField
+              label="Email OTP"
+              value={verifyEmailOtp}
+              onChange={setVerifyEmailOtp}
+              placeholder="6 digit OTP"
+            />
+
+            <button
+              className="primary-button"
+              disabled={busy}
+              onClick={verifyEmail}
+              type="button"
+            >
+              <ShieldCheck aria-hidden="true" size={18} strokeWidth={2.3} />
+              Verify and login
+            </button>
+
+            <button className="secondary-button" disabled={busy} onClick={login} type="button">
+              <Send aria-hidden="true" size={18} strokeWidth={2.3} />
+              Resend OTP
             </button>
           </>
         )}
@@ -1102,7 +1201,7 @@ function SupportScreen({ complaint, setComplaint, submitComplaint, setPage }) {
 export default function SocietyApp() {
   const [token, setToken] = useState(null);
   const [role, setRole] = useState(null);
-  const [page, setPage] = useState("login");
+  const [page, setPage] = useState("landing");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -1117,6 +1216,8 @@ export default function SocietyApp() {
   const [resetEmail, setResetEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [verifyEmailOtp, setVerifyEmailOtp] = useState("");
+  const [verificationEmail, setVerificationEmail] = useState("");
 
   const [memberDraft, setMemberDraft] = useState({
     name: "",
@@ -1160,7 +1261,7 @@ export default function SocietyApp() {
     setToken(null);
     setRole(null);
     setData(null);
-    setPage("login");
+    setPage("landing");
     setAuthMode("login");
   }, []);
 
@@ -1244,6 +1345,14 @@ export default function SocietyApp() {
       });
 
       if (!response?.success) {
+        if (response?.verificationRequired) {
+          setVerificationEmail(response.email || "");
+          setVerifyEmailOtp("");
+          setAuthMode("emailVerify");
+          notify(response.message || "Verify your email before login");
+          return;
+        }
+
         notify("Wrong flat number or password", "error");
         return;
       }
@@ -1256,6 +1365,37 @@ export default function SocietyApp() {
       notify("Login successful");
     } catch (error) {
       notify(error.message || "Login failed", "error");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const verifyEmail = async () => {
+    if (!flat.trim() || !verifyEmailOtp.trim()) {
+      notify("Enter the email OTP", "error");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const response = await apiRequest("/verify-email", {
+        method: "POST",
+        body: {
+          flatNumber: flat.trim(),
+          otp: verifyEmailOtp.trim(),
+        },
+      });
+
+      if (!response?.success) {
+        notify(response?.message || "Email verification failed", "error");
+        return;
+      }
+
+      notify(response.message || "Email verified");
+      setAuthMode("login");
+      await login();
+    } catch (error) {
+      notify(error.message || "Email verification failed", "error");
     } finally {
       setBusy(false);
     }
@@ -1561,24 +1701,33 @@ export default function SocietyApp() {
   if (!token) {
     return (
       <>
-        <AuthScreen
-          authMode={authMode}
-          setAuthMode={setAuthMode}
-          flat={flat}
-          setFlat={setFlat}
-          password={password}
-          setPassword={setPassword}
-          resetEmail={resetEmail}
-          setResetEmail={setResetEmail}
-          otp={otp}
-          setOtp={setOtp}
-          newPassword={newPassword}
-          setNewPassword={setNewPassword}
-          login={login}
-          sendOtp={sendOtp}
-          verifyOtp={verifyOtp}
-          busy={busy}
-        />
+        {page === "landing" ? (
+          <OpeningScreen onStart={() => setPage("login")} />
+        ) : (
+          <AuthScreen
+            authMode={authMode}
+            setAuthMode={setAuthMode}
+            setPage={setPage}
+            flat={flat}
+            setFlat={setFlat}
+            password={password}
+            setPassword={setPassword}
+            resetEmail={resetEmail}
+            setResetEmail={setResetEmail}
+            otp={otp}
+            setOtp={setOtp}
+            newPassword={newPassword}
+            setNewPassword={setNewPassword}
+            verifyEmailOtp={verifyEmailOtp}
+            setVerifyEmailOtp={setVerifyEmailOtp}
+            verifyEmail={verifyEmail}
+            verificationEmail={verificationEmail}
+            login={login}
+            sendOtp={sendOtp}
+            verifyOtp={verifyOtp}
+            busy={busy}
+          />
+        )}
         <Toast toast={toast} />
       </>
     );
