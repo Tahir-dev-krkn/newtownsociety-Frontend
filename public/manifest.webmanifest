@@ -1,0 +1,32 @@
+{
+  "name": "New Town Society",
+  "short_name": "NT Society",
+  "description": "Society maintenance payments, dues, reports, and support.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f7fb",
+  "theme_color": "#0f766e",
+  "categories": ["finance", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/new-town-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Payments",
+      "short_name": "Pay",
+      "url": "/?screen=payment"
+    },
+    {
+      "name": "Support",
+      "short_name": "Help",
+      "url": "/?screen=support"
+    }
+  ]
+}
