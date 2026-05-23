@@ -1506,12 +1506,36 @@ export default function SocietyApp() {
   };
 
   const addMember = async () => {
+    const cleanDraft = {
+      name: memberDraft.name.trim(),
+      flatNumber: memberDraft.flatNumber.trim(),
+      area: String(memberDraft.area).trim(),
+      phone: memberDraft.phone.trim(),
+      email: memberDraft.email.trim().toLowerCase(),
+    };
+
+    if (
+      !cleanDraft.name ||
+      !cleanDraft.flatNumber ||
+      !cleanDraft.area ||
+      !cleanDraft.phone ||
+      !cleanDraft.email
+    ) {
+      notify("Please fill all member details", "error");
+      return;
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(cleanDraft.email)) {
+      notify("Please enter a valid email address", "error");
+      return;
+    }
+
     try {
       const message = await apiRequest("/add-member", {
         method: "POST",
         token,
         responseType: "text",
-        body: memberDraft,
+        body: cleanDraft,
       });
       notify(message || "Member added");
       setMemberDraft({ name: "", flatNumber: "", area: "", phone: "", email: "" });
