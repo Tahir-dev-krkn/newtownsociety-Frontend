@@ -23,18 +23,18 @@ export const YEARS = Array.from(
 );
 
 export const OWNER_NAV = [
-  { name: "dashboard", label: "Home", icon: "Home" },
-  { name: "payment", label: "Pay", icon: "Pay" },
-  { name: "due", label: "Due", icon: "Due" },
-  { name: "history", label: "History", icon: "Hist" },
-  { name: "profile", label: "Profile", icon: "Me" },
+  { name: "dashboard", label: "Home", icon: "home" },
+  { name: "payment", label: "Pay", icon: "payment" },
+  { name: "due", label: "Due", icon: "due" },
+  { name: "history", label: "History", icon: "history" },
+  { name: "profile", label: "Profile", icon: "profile" },
 ];
 
 export const ADMIN_NAV = [
-  { name: "dashboard", label: "Dashboard", icon: "Dash" },
-  { name: "members", label: "Members", icon: "Mem" },
-  { name: "addMember", label: "Add", icon: "Add" },
-  { name: "pending", label: "Pending", icon: "Due" },
-  { name: "history", label: "Payments", icon: "Pay" },
-  { name: "excel", label: "Export", icon: "Xls" },
+  { name: "dashboard", label: "Dashboard", icon: "dashboard" },
+  { name: "members", label: "Members", icon: "members" },
+  { name: "addMember", label: "Add", icon: "addMember" },
+  { name: "pending", label: "Pending", icon: "due" },
+  { name: "history", label: "Payments", icon: "history" },
+  { name: "excel", label: "Export", icon: "export" },
 ];

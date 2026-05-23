@@ -10,6 +10,34 @@ import {
   LinearScale,
   Tooltip,
 } from "chart.js";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Bell,
+  Building2,
+  CheckCircle2,
+  CreditCard,
+  Download,
+  Edit3,
+  FileSpreadsheet,
+  Gauge,
+  History,
+  Home,
+  LogOut,
+  Mail,
+  MessageCircle,
+  Phone,
+  Plus,
+  ReceiptText,
+  Search,
+  Send,
+  ShieldCheck,
+  Trash2,
+  User,
+  UserPlus,
+  Users,
+  WalletCards,
+} from "lucide-react";
 import { apiRequest, downloadFile } from "./api";
 import { ADMIN_NAV, MONTHS, OWNER_NAV, RAZORPAY_KEY, YEARS } from "./constants";
 
@@ -34,6 +62,24 @@ const chartOptions = {
     },
   },
 };
+
+const iconMap = {
+  addMember: UserPlus,
+  dashboard: Gauge,
+  due: AlertCircle,
+  export: FileSpreadsheet,
+  history: History,
+  home: Home,
+  members: Users,
+  payment: CreditCard,
+  profile: User,
+};
+
+function Icon({ name, size = 18 }) {
+  const IconComponent = iconMap[name] || ShieldCheck;
+
+  return <IconComponent aria-hidden="true" size={size} strokeWidth={2.2} />;
+}
 
 function money(value) {
   return new Intl.NumberFormat("en-IN", {
@@ -60,6 +106,11 @@ function Toast({ toast }) {
 
   return (
     <div className={`toast toast-${toast.type}`} role="status">
+      {toast.type === "error" ? (
+        <AlertCircle aria-hidden="true" size={18} strokeWidth={2.3} />
+      ) : (
+        <CheckCircle2 aria-hidden="true" size={18} strokeWidth={2.3} />
+      )}
       {toast.message}
     </div>
   );
@@ -68,10 +119,12 @@ function Toast({ toast }) {
 function Brand() {
   return (
     <div className="brand">
-      <div className="brand-mark">NT</div>
+      <div className="brand-mark">
+        <Building2 aria-hidden="true" size={24} strokeWidth={2.4} />
+      </div>
       <div>
         <p className="brand-name">New Town Society</p>
-        <p className="brand-subtitle">Maintenance app</p>
+        <p className="brand-subtitle">Resident command center</p>
       </div>
     </div>
   );
@@ -100,14 +153,18 @@ function AppShell({
               onClick={() => setPage(item.name)}
               type="button"
             >
-              <span className="nav-icon">{item.icon}</span>
+              <span className="nav-icon">
+                <Icon name={item.icon} />
+              </span>
               <span>{item.label}</span>
             </button>
           ))}
         </div>
 
         <button className="nav-button danger" onClick={onLogout} type="button">
-          <span className="nav-icon">Out</span>
+          <span className="nav-icon">
+            <LogOut aria-hidden="true" size={18} strokeWidth={2.2} />
+          </span>
           <span>Logout</span>
         </button>
       </aside>
@@ -133,7 +190,9 @@ function AppShell({
             onClick={() => setPage(item.name)}
             type="button"
           >
-            <span>{item.icon}</span>
+            <span>
+              <Icon name={item.icon} size={19} />
+            </span>
             <small>{item.label}</small>
           </button>
         ))}
@@ -144,9 +203,10 @@ function AppShell({
 
 function StatCard({ label, value, tone = "neutral", action, caption }) {
   const Element = action ? "button" : "div";
+  const actionProps = action ? { onClick: action, type: "button" } : {};
 
   return (
-    <Element className={`stat-card tone-${tone}`} onClick={action} type="button">
+    <Element className={`stat-card tone-${tone}`} {...actionProps}>
       <span>{label}</span>
       <strong>{value}</strong>
       {caption && <small>{caption}</small>}
@@ -164,9 +224,12 @@ function EmptyState({ title, text }) {
 }
 
 function TextField({ label, value, onChange, type = "text", placeholder }) {
+  const isSearch = label.toLowerCase() === "search";
+
   return (
-    <label className="field">
+    <label className={`field ${isSearch ? "search-field" : ""}`}>
       <span>{label}</span>
+      {isSearch && <Search aria-hidden="true" size={17} strokeWidth={2.3} />}
       <input
         placeholder={placeholder || label}
         type={type}
@@ -204,6 +267,7 @@ function TextareaField({ label, value, onChange, placeholder }) {
 function BackButton({ onClick, label = "Back" }) {
   return (
     <button className="ghost-button" onClick={onClick} type="button">
+      <ArrowLeft aria-hidden="true" size={17} strokeWidth={2.3} />
       {label}
     </button>
   );
@@ -244,12 +308,26 @@ function AuthScreen({
       <section className="auth-panel">
         <Brand />
         <div className="auth-copy">
-          <p className="eyebrow">Society payments</p>
-          <h1>Manage dues, payments, and support from one app.</h1>
+          <p className="eyebrow">Web and mobile app</p>
+          <h1>Smart dues, payments, reports, and support in one place.</h1>
           <p>
-            Built for New Town Society owners and admins with secure role-based
-            access.
+            A faster resident experience for owners, with a clean control room for
+            society admins.
           </p>
+        </div>
+        <div className="auth-visual" aria-hidden="true">
+          <div className="visual-stat">
+            <span>Collection</span>
+            <strong>Live</strong>
+          </div>
+          <div className="visual-stat">
+            <span>Reminders</span>
+            <strong>Auto</strong>
+          </div>
+          <div className="visual-stat">
+            <span>Reports</span>
+            <strong>XLSX</strong>
+          </div>
         </div>
       </section>
 
@@ -277,6 +355,7 @@ function AuthScreen({
               onClick={login}
               type="button"
             >
+              <ShieldCheck aria-hidden="true" size={18} strokeWidth={2.3} />
               Login
             </button>
             <button
@@ -298,6 +377,7 @@ function AuthScreen({
               onClick={sendOtp}
               type="button"
             >
+              <Mail aria-hidden="true" size={18} strokeWidth={2.3} />
               Send OTP
             </button>
             <button
@@ -325,6 +405,7 @@ function AuthScreen({
               onClick={verifyOtp}
               type="button"
             >
+              <ShieldCheck aria-hidden="true" size={18} strokeWidth={2.3} />
               Reset password
             </button>
             <button
@@ -373,9 +454,11 @@ function AdminDashboard({ members, setPage, openComplaints, refreshing }) {
     <>
       <div className="quick-actions">
         <button className="primary-button" onClick={() => setPage("members")} type="button">
+          <Users aria-hidden="true" size={18} strokeWidth={2.3} />
           Manage members
         </button>
         <button className="secondary-button" onClick={openComplaints} type="button">
+          <Bell aria-hidden="true" size={18} strokeWidth={2.3} />
           Complaints
         </button>
       </div>
@@ -458,6 +541,7 @@ function MembersScreen({
           <option value="low">Low to high</option>
         </SelectField>
         <button className="primary-button" onClick={() => setPage("addMember")} type="button">
+          <Plus aria-hidden="true" size={18} strokeWidth={2.3} />
           Add member
         </button>
       </div>
@@ -481,15 +565,19 @@ function MembersScreen({
 
             <div className="button-row">
               <button className="secondary-button" onClick={() => openDue(member)} type="button">
+                <ReceiptText aria-hidden="true" size={17} strokeWidth={2.3} />
                 Add due
               </button>
               <button className="secondary-button" onClick={() => openEdit(member)} type="button">
+                <Edit3 aria-hidden="true" size={17} strokeWidth={2.3} />
                 Edit
               </button>
               <button className="secondary-button" onClick={() => sendReminder(member._id)} type="button">
+                <Send aria-hidden="true" size={17} strokeWidth={2.3} />
                 Remind
               </button>
               <button className="danger-button" onClick={() => deleteMember(member._id)} type="button">
+                <Trash2 aria-hidden="true" size={17} strokeWidth={2.3} />
                 Delete
               </button>
             </div>
@@ -519,6 +607,7 @@ function MemberForm({ title, values, setValues, onSubmit, onBack, submitLabel })
       <TextField label="Phone" value={values.phone || ""} onChange={(value) => update("phone", value)} />
       <TextField label="Email" value={values.email || ""} onChange={(value) => update("email", value)} />
       <button className="primary-button" onClick={onSubmit} type="button">
+        <CheckCircle2 aria-hidden="true" size={18} strokeWidth={2.3} />
         {submitLabel}
       </button>
     </section>
@@ -578,6 +667,7 @@ function AddDueScreen({
       </div>
 
       <button className="primary-button" disabled={!amount} onClick={onSubmit} type="button">
+        <Plus aria-hidden="true" size={18} strokeWidth={2.3} />
         Add due
       </button>
     </section>
@@ -629,6 +719,7 @@ function AdminHistory({
         <div className="panel-heading">
           <h2>Payment mix</h2>
           <button className="primary-button slim" onClick={() => exportHistory(filtered)} type="button">
+            <Download aria-hidden="true" size={17} strokeWidth={2.3} />
             Export
           </button>
         </div>
@@ -742,6 +833,7 @@ function ExportScreen({ excelFlat, setExcelFlat, dates, setDates, downloadExcel 
         onChange={(value) => setDates((current) => ({ ...current, to: value }))}
       />
       <button className="primary-button" onClick={downloadExcel} type="button">
+        <Download aria-hidden="true" size={18} strokeWidth={2.3} />
         Download Excel
       </button>
     </section>
@@ -784,6 +876,7 @@ function ComplaintsScreen({ complaints, loadComplaints }) {
     <>
       <div className="quick-actions">
         <button className="secondary-button" onClick={loadComplaints} type="button">
+          <Bell aria-hidden="true" size={18} strokeWidth={2.3} />
           Refresh complaints
         </button>
       </div>
@@ -818,6 +911,7 @@ function OwnerDashboard({ data, setPage }) {
           <p>{pendingTotal > 0 ? `${money(pendingTotal)} pending` : "All dues are clear"}</p>
         </div>
         <button className="primary-button" onClick={() => setPage("payment")} type="button">
+          <WalletCards aria-hidden="true" size={18} strokeWidth={2.3} />
           Pay now
         </button>
       </section>
@@ -853,6 +947,7 @@ function OwnerDashboard({ data, setPage }) {
         <div className="panel-heading">
           <h2>Recent payments</h2>
           <button className="text-button inline" onClick={() => setPage("history")} type="button">
+            <History aria-hidden="true" size={16} strokeWidth={2.3} />
             View all
           </button>
         </div>
@@ -890,6 +985,7 @@ function OwnerPayments({ payments, title, emptyTitle, payNow, setPage }) {
             <h2>{money(payment.amount)}</h2>
             <p>{title}</p>
             <button className="primary-button" onClick={() => payNow(payment)} type="button">
+              <CreditCard aria-hidden="true" size={18} strokeWidth={2.3} />
               Pay now
             </button>
           </article>
@@ -935,14 +1031,22 @@ function OwnerProfile({ data, profileDue, setPage, logout }) {
         <h2>{data?.name || "Owner"}</h2>
         <p>Flat {data?.flatNumber || "--"}</p>
         <div className="profile-lines">
-          <span>{data?.phone || "Phone not added"}</span>
-          <span>{data?.email || "Email not added"}</span>
+          <span>
+            <Phone aria-hidden="true" size={15} strokeWidth={2.3} />
+            {data?.phone || "Phone not added"}
+          </span>
+          <span>
+            <Mail aria-hidden="true" size={15} strokeWidth={2.3} />
+            {data?.email || "Email not added"}
+          </span>
         </div>
         <div className="button-row center">
           <button className="primary-button" onClick={() => setPage("editProfile")} type="button">
+            <Edit3 aria-hidden="true" size={18} strokeWidth={2.3} />
             Edit profile
           </button>
           <button className="secondary-button" onClick={() => setPage("support")} type="button">
+            <MessageCircle aria-hidden="true" size={18} strokeWidth={2.3} />
             Help and support
           </button>
         </div>
@@ -954,6 +1058,7 @@ function OwnerProfile({ data, profileDue, setPage, logout }) {
       </section>
 
       <button className="danger-button full" onClick={logout} type="button">
+        <LogOut aria-hidden="true" size={18} strokeWidth={2.3} />
         Logout
       </button>
     </>
@@ -968,6 +1073,7 @@ function EditProfile({ phone, setPhone, email, setEmail, updateProfile, setPage 
       <TextField label="Phone" value={phone} onChange={setPhone} />
       <TextField label="Email" value={email} onChange={setEmail} />
       <button className="primary-button" onClick={updateProfile} type="button">
+        <CheckCircle2 aria-hidden="true" size={18} strokeWidth={2.3} />
         Save changes
       </button>
     </section>
@@ -986,6 +1092,7 @@ function SupportScreen({ complaint, setComplaint, submitComplaint, setPage }) {
         placeholder="Write your issue"
       />
       <button className="primary-button" onClick={submitComplaint} type="button">
+        <Send aria-hidden="true" size={18} strokeWidth={2.3} />
         Submit complaint
       </button>
     </section>

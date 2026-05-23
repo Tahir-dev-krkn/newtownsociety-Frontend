@@ -1,16 +1,19 @@
 :root {
-  --background: #f5f7fb;
-  --foreground: #0f172a;
-  --muted: #64748b;
-  --line: #dbe3ef;
+  --background: #f3f6f7;
+  --foreground: #111827;
+  --muted: #667085;
+  --line: #d8e0e6;
   --panel: #ffffff;
   --panel-strong: #eef5f3;
-  --teal: #0f766e;
+  --ink: #0d1b2a;
+  --teal: #0d9488;
   --blue: #2563eb;
-  --green: #16a34a;
-  --red: #dc2626;
-  --amber: #d97706;
-  --shadow: 0 18px 50px rgba(15, 23, 42, 0.1);
+  --green: #12a150;
+  --red: #e11d48;
+  --amber: #f59e0b;
+  --purple: #7c3aed;
+  --shadow: 0 22px 60px rgba(15, 23, 42, 0.13);
+  --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.08);
 }
 
 * {
@@ -26,8 +29,10 @@ body {
   min-height: 100%;
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(15, 118, 110, 0.16), transparent 30rem),
-    linear-gradient(135deg, #f8fafc 0%, #eef5f3 44%, #f7efe7 100%);
+    linear-gradient(120deg, rgba(13, 148, 136, 0.08) 0 34%, transparent 34% 100%),
+    linear-gradient(150deg, transparent 0 62%, rgba(245, 158, 11, 0.1) 62% 100%),
+    repeating-linear-gradient(90deg, rgba(15, 23, 42, 0.03) 0 1px, transparent 1px 82px),
+    #f4f7f8;
   color: var(--foreground);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -68,33 +73,38 @@ a {
 .bill-card,
 .payment-row,
 .empty-state {
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.22);
   box-shadow: var(--shadow);
   backdrop-filter: blur(18px);
 }
 
 .auth-panel {
   min-height: calc(100vh - 48px);
-  border-radius: 28px;
-  padding: 30px;
+  border-radius: 32px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
   position: relative;
+  color: white;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(135deg, #0b1220 0%, #12343b 45%, #0f766e 100%);
+  background-size: 72px 72px, 72px 72px, auto;
 }
 
 .auth-panel::after {
   content: "";
   position: absolute;
-  inset: auto -12% -30% 28%;
-  height: 58%;
-  border-radius: 50%;
+  inset: auto 0 0;
+  height: 38%;
   background:
-    linear-gradient(135deg, rgba(22, 163, 74, 0.32), rgba(37, 99, 235, 0.22)),
-    linear-gradient(45deg, rgba(217, 119, 6, 0.2), transparent);
-  filter: blur(8px);
+    linear-gradient(135deg, transparent 0 35%, rgba(255, 255, 255, 0.18) 35% 36%, transparent 36% 100%),
+    linear-gradient(35deg, rgba(245, 158, 11, 0.18), transparent 55%);
+  clip-path: polygon(0 62%, 12% 48%, 24% 58%, 37% 34%, 52% 50%, 66% 26%, 82% 46%, 100% 20%, 100% 100%, 0 100%);
 }
 
 .auth-copy {
@@ -112,18 +122,52 @@ a {
 
 .auth-copy p {
   max-width: 560px;
-  color: #475569;
+  color: rgba(255, 255, 255, 0.74);
   font-size: 1.05rem;
   line-height: 1.7;
 }
 
 .auth-card {
   align-self: center;
-  border-radius: 24px;
-  padding: 28px;
+  border-radius: 28px;
+  padding: 30px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.auth-card h2 {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+}
+
+.auth-visual {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 620px;
+}
+
+.visual-stat {
+  min-height: 92px;
+  display: grid;
+  align-content: space-between;
+  border-radius: 22px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.11);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.visual-stat span {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.visual-stat strong {
+  font-size: 1.55rem;
 }
 
 .auth-card.compact {
@@ -176,6 +220,20 @@ a {
   color: var(--muted);
 }
 
+.auth-panel .brand-subtitle,
+.auth-panel .brand-name,
+.auth-panel .eyebrow {
+  color: white;
+}
+
+.app-nav .brand-name {
+  color: white;
+}
+
+.app-nav .brand-subtitle {
+  color: rgba(255, 255, 255, 0.58);
+}
+
 .eyebrow,
 .card-kicker {
   color: var(--teal);
@@ -187,6 +245,7 @@ a {
 .field {
   display: grid;
   gap: 7px;
+  position: relative;
 }
 
 .field span {
@@ -200,11 +259,23 @@ a {
   width: 100%;
   min-height: 48px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   background: #f8fafc;
   color: var(--foreground);
   outline: none;
   padding: 0 14px;
+}
+
+.search-field svg {
+  position: absolute;
+  left: 14px;
+  bottom: 15px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.search-field input {
+  padding-left: 42px;
 }
 
 .field textarea {
@@ -237,14 +308,19 @@ a {
 .danger-button,
 .ghost-button {
   min-height: 46px;
-  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 16px;
   padding: 0 16px;
   font-weight: 800;
 }
 
 .primary-button {
   color: white;
-  background: linear-gradient(135deg, var(--teal), #0f9f8f);
+  background: linear-gradient(135deg, #0f766e, #0ea5a4 58%, #2563eb);
+  box-shadow: 0 12px 26px rgba(13, 148, 136, 0.22);
 }
 
 .secondary-button,
@@ -275,6 +351,9 @@ a {
 
 .text-button {
   width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: transparent;
   color: var(--teal);
   font-weight: 800;
@@ -308,20 +387,23 @@ a {
 .app-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 292px minmax(0, 1fr);
 }
 
 .app-nav {
   position: sticky;
   top: 0;
   height: 100vh;
-  padding: 22px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 22px;
-  border-right: 1px solid rgba(148, 163, 184, 0.28);
-  background: rgba(255, 255, 255, 0.72);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent),
+    #0b1220;
   backdrop-filter: blur(18px);
+  color: white;
 }
 
 .nav-list {
@@ -337,17 +419,18 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 0 12px;
   background: transparent;
-  color: #334155;
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 800;
   text-align: left;
 }
 
 .nav-button.active {
-  background: #e6f4f1;
-  color: var(--teal);
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.24), rgba(37, 99, 235, 0.2));
+  color: white;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .nav-button.danger {
@@ -356,19 +439,18 @@ a {
 
 .nav-icon {
   width: 38px;
-  height: 32px;
-  border-radius: 12px;
+  height: 36px;
+  border-radius: 14px;
   display: grid;
   place-items: center;
-  background: #f1f5f9;
-  font-size: 0.7rem;
-  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.08);
+  color: currentColor;
 }
 
 .app-main {
-  width: min(1180px, 100%);
+  width: min(1220px, 100%);
   margin: 0 auto;
-  padding: 28px 28px 108px;
+  padding: 32px 32px 108px;
 }
 
 .screen-header {
@@ -381,7 +463,7 @@ a {
 
 .screen-header h1 {
   margin: 6px 0 4px;
-  font-size: clamp(1.7rem, 4vw, 2.65rem);
+  font-size: clamp(1.9rem, 4vw, 3rem);
   line-height: 1.08;
 }
 
@@ -393,16 +475,27 @@ a {
 }
 
 .stat-card {
-  min-height: 138px;
+  min-height: 150px;
   display: grid;
   align-content: space-between;
   gap: 10px;
-  border-radius: 20px;
-  padding: 18px;
+  border-radius: 24px;
+  padding: 20px;
   text-align: left;
   color: #0f172a;
   border: 1px solid rgba(148, 163, 184, 0.24);
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: currentColor;
+  opacity: 0.45;
 }
 
 .stat-card span,
@@ -421,18 +514,22 @@ a {
 }
 
 .tone-blue {
+  color: #1d4ed8;
   background: linear-gradient(135deg, #e0f2fe, #dbeafe);
 }
 
 .tone-green {
+  color: #047857;
   background: linear-gradient(135deg, #dcfce7, #ccfbf1);
 }
 
 .tone-red {
+  color: #be123c;
   background: linear-gradient(135deg, #fee2e2, #ffe4e6);
 }
 
 .tone-amber {
+  color: #b45309;
   background: linear-gradient(135deg, #fef3c7, #ffedd5);
 }
 
@@ -440,8 +537,8 @@ a {
 .form-panel,
 .profile-card,
 .owner-hero {
-  border-radius: 22px;
-  padding: 20px;
+  border-radius: 26px;
+  padding: 22px;
 }
 
 .panel-heading {
@@ -461,7 +558,7 @@ a {
 }
 
 .chart-panel {
-  min-height: 390px;
+  min-height: 410px;
 }
 
 .chart-panel.small {
@@ -493,8 +590,8 @@ a {
 
 .member-card,
 .bill-card {
-  border-radius: 20px;
-  padding: 18px;
+  border-radius: 24px;
+  padding: 20px;
 }
 
 .member-card {
@@ -518,6 +615,9 @@ a {
   width: fit-content;
   border-radius: 999px;
   padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
   background: #eef2ff;
   color: var(--blue);
   font-size: 0.78rem;
@@ -536,7 +636,7 @@ a {
 
 .payment-row {
   min-height: 86px;
-  border-radius: 18px;
+  border-radius: 22px;
   padding: 14px 16px;
   display: flex;
   align-items: center;
@@ -571,16 +671,34 @@ a {
 }
 
 .owner-hero {
-  min-height: 190px;
+  min-height: 220px;
   margin-bottom: 18px;
   display: flex;
   align-items: end;
   justify-content: space-between;
   gap: 18px;
   background:
-    linear-gradient(135deg, rgba(15, 118, 110, 0.92), rgba(37, 99, 235, 0.82)),
-    #0f766e;
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(135deg, #111827 0%, #0f766e 54%, #2563eb 100%);
+  background-size: 54px 54px, 54px 54px, auto;
   color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.owner-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 42%;
+  background: rgba(255, 255, 255, 0.12);
+  clip-path: polygon(0 70%, 14% 44%, 24% 56%, 38% 32%, 52% 60%, 68% 28%, 82% 52%, 100% 24%, 100% 100%, 0 100%);
+}
+
+.owner-hero > * {
+  position: relative;
+  z-index: 1;
 }
 
 .owner-hero p,
@@ -613,7 +731,7 @@ a {
 .avatar {
   width: 86px;
   height: 86px;
-  border-radius: 28px;
+  border-radius: 30px;
   font-size: 2rem;
   font-weight: 900;
 }
@@ -622,6 +740,13 @@ a {
   display: grid;
   gap: 4px;
   color: var(--muted);
+}
+
+.profile-lines span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
 }
 
 .complaint-message {
@@ -658,6 +783,10 @@ a {
   box-shadow: var(--shadow);
   font-weight: 800;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .toast-success {
@@ -754,7 +883,9 @@ a {
   }
 
   .bottom-nav-button span {
-    font-size: 0.72rem;
+    display: grid;
+    place-items: center;
+    min-height: 22px;
   }
 
   .bottom-nav-button small {
