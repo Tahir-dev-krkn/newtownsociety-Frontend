@@ -1,5 +1,7 @@
 import { API_BASE } from "./constants";
 
+const REQUEST_TIMEOUT_MS = 15000;
+
 export async function apiRequest(path, options = {}) {
   const {
     method = "GET",
@@ -26,10 +28,26 @@ export async function apiRequest(path, options = {}) {
     init.body = JSON.stringify(body);
   }
 
-  const response = await fetch(
-    path.startsWith("http") ? path : `${API_BASE}${path}`,
-    init,
-  );
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  init.signal = controller.signal;
+
+  let response;
+
+  try {
+    response = await fetch(
+      path.startsWith("http") ? path : `${API_BASE}${path}`,
+      init,
+    );
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("Request timed out. Please try again.");
+    }
+
+    throw error;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
 
   if (responseType === "blob") {
     if (!response.ok) throw new Error("Download failed");

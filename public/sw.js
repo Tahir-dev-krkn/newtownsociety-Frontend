@@ -1,4 +1,4 @@
-const CACHE_NAME = "new-town-society-v2";
+const CACHE_NAME = "new-town-society-v3";
 const APP_SHELL = ["/", "/manifest.webmanifest", "/icons/new-town-icon.svg"];
 
 self.addEventListener("install", (event) => {

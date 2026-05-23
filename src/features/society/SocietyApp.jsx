@@ -342,8 +342,6 @@ function AuthScreen({
   setPassword,
   resetEmail,
   setResetEmail,
-  otp,
-  setOtp,
   newPassword,
   setNewPassword,
   verifyEmailOtp,
@@ -351,10 +349,18 @@ function AuthScreen({
   verifyEmail,
   verificationEmail,
   login,
-  sendOtp,
-  verifyOtp,
+  sendResetLink,
+  resetPasswordFromLink,
   busy,
 }) {
+  const authTitle = {
+    login: "Login",
+    forgot: "Reset password",
+    resetSent: "Check your email",
+    resetLink: "Set new password",
+    emailVerify: "Verify email",
+  }[authMode] || "Login";
+
   return (
     <main className="auth-screen">
       <section className="auth-panel">
@@ -393,15 +399,7 @@ function AuthScreen({
           Opening page
         </button>
 
-        <h2>
-          {authMode === "login"
-            ? "Login"
-            : authMode === "forgot"
-              ? "Reset password"
-              : authMode === "emailVerify"
-                ? "Verify email"
-                : "Verify OTP"}
-        </h2>
+        <h2>{authTitle}</h2>
 
         {authMode === "login" && (
           <>
@@ -473,11 +471,11 @@ function AuthScreen({
             <button
               className="primary-button"
               disabled={busy}
-              onClick={sendOtp}
+              onClick={sendResetLink}
               type="button"
             >
               <Mail aria-hidden="true" size={18} strokeWidth={2.3} />
-              Send OTP
+              Send reset link
             </button>
             <button
               className="secondary-button"
@@ -489,9 +487,43 @@ function AuthScreen({
           </>
         )}
 
-        {authMode === "otp" && (
+        {authMode === "resetSent" && (
           <>
-            <TextField label="OTP" value={otp} onChange={setOtp} />
+            <div className="verification-note">
+              <Mail aria-hidden="true" size={20} strokeWidth={2.3} />
+              <div>
+                <strong>Reset link sent</strong>
+                <p>Open the password reset link sent to {resetEmail}.</p>
+              </div>
+            </div>
+            <button
+              className="secondary-button"
+              disabled={busy}
+              onClick={sendResetLink}
+              type="button"
+            >
+              <Send aria-hidden="true" size={18} strokeWidth={2.3} />
+              Send again
+            </button>
+            <button
+              className="secondary-button"
+              onClick={() => setAuthMode("login")}
+              type="button"
+            >
+              Back to login
+            </button>
+          </>
+        )}
+
+        {authMode === "resetLink" && (
+          <>
+            <div className="verification-note">
+              <ShieldCheck aria-hidden="true" size={20} strokeWidth={2.3} />
+              <div>
+                <strong>Secure reset link opened</strong>
+                <p>Set a new password for {resetEmail || "your account"}.</p>
+              </div>
+            </div>
             <TextField
               label="New password"
               type="password"
@@ -501,7 +533,7 @@ function AuthScreen({
             <button
               className="primary-button"
               disabled={busy}
-              onClick={verifyOtp}
+              onClick={resetPasswordFromLink}
               type="button"
             >
               <ShieldCheck aria-hidden="true" size={18} strokeWidth={2.3} />
@@ -1214,7 +1246,7 @@ export default function SocietyApp() {
   const [flat, setFlat] = useState("");
   const [password, setPassword] = useState("");
   const [resetEmail, setResetEmail] = useState("");
-  const [otp, setOtp] = useState("");
+  const [resetToken, setResetToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [verifyEmailOtp, setVerifyEmailOtp] = useState("");
   const [verificationEmail, setVerificationEmail] = useState("");
@@ -1304,6 +1336,24 @@ export default function SocietyApp() {
   }, [loadComplaints, notify, page, role, token]);
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const linkResetToken = searchParams.get("resetToken");
+    const linkResetEmail = searchParams.get("email");
+
+    if (linkResetToken && linkResetEmail) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      setToken(null);
+      setRole(null);
+      setResetToken(linkResetToken);
+      setResetEmail(linkResetEmail);
+      setNewPassword("");
+      setAuthMode("resetLink");
+      setPage("login");
+      setLoading(false);
+      return;
+    }
+
     const savedToken = localStorage.getItem("token");
     const savedRole = localStorage.getItem("role");
 
@@ -1401,7 +1451,7 @@ export default function SocietyApp() {
     }
   };
 
-  const sendOtp = async () => {
+  const sendResetLink = async () => {
     if (!resetEmail.trim()) {
       notify("Enter email", "error");
       return;
@@ -1409,35 +1459,42 @@ export default function SocietyApp() {
 
     setBusy(true);
     try {
-      const message = await apiRequest("/send-otp", {
+      const message = await apiRequest("/send-reset-link", {
         method: "POST",
         responseType: "text",
         body: { email: resetEmail.trim() },
       });
-      notify(message || "OTP sent");
-      setAuthMode("otp");
+      notify(message || "Password reset link sent");
+      setAuthMode("resetSent");
     } catch (error) {
-      notify(error.message || "Could not send OTP", "error");
+      notify(error.message || "Could not send reset link", "error");
     } finally {
       setBusy(false);
     }
   };
 
-  const verifyOtp = async () => {
-    if (!otp.trim() || !newPassword) {
-      notify("Enter OTP and new password", "error");
+  const resetPasswordFromLink = async () => {
+    if (!resetEmail.trim() || !resetToken || !newPassword) {
+      notify("Open the reset link and enter a new password", "error");
       return;
     }
 
     setBusy(true);
     try {
-      const message = await apiRequest("/verify-otp", {
+      const message = await apiRequest("/reset-password", {
         method: "POST",
         responseType: "text",
-        body: { email: resetEmail.trim(), otp: otp.trim(), newPassword },
+        body: {
+          email: resetEmail.trim(),
+          token: resetToken,
+          newPassword,
+        },
       });
       notify(message || "Password updated");
+      setResetToken("");
+      setNewPassword("");
       setAuthMode("login");
+      window.history.replaceState({}, "", window.location.pathname);
     } catch (error) {
       notify(error.message || "Could not reset password", "error");
     } finally {
@@ -1738,8 +1795,6 @@ export default function SocietyApp() {
             setPassword={setPassword}
             resetEmail={resetEmail}
             setResetEmail={setResetEmail}
-            otp={otp}
-            setOtp={setOtp}
             newPassword={newPassword}
             setNewPassword={setNewPassword}
             verifyEmailOtp={verifyEmailOtp}
@@ -1747,8 +1802,8 @@ export default function SocietyApp() {
             verifyEmail={verifyEmail}
             verificationEmail={verificationEmail}
             login={login}
-            sendOtp={sendOtp}
-            verifyOtp={verifyOtp}
+            sendResetLink={sendResetLink}
+            resetPasswordFromLink={resetPasswordFromLink}
             busy={busy}
           />
         )}
