@@ -1,6 +1,5 @@
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
-export const RAZORPAY_KEY =
-  process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_SbpWTRevaQRAeM";
+export const RAZORPAY_KEY = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "";
 
 export const MONTHS = [
   "January",

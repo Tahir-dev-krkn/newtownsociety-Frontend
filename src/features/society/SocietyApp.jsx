@@ -1508,6 +1508,11 @@ export default function SocietyApp() {
       return;
     }
 
+    if (!RAZORPAY_KEY) {
+      notify("Payment key is not configured", "error");
+      return;
+    }
+
     try {
       const order = await apiRequest("/create-order", {
         method: "POST",
