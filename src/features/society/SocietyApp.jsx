@@ -1028,10 +1028,58 @@ function ComplaintsScreen({ complaints, loadComplaints }) {
   );
 }
 
-function OwnerDashboard({ data, setPage }) {
-  const pendingTotal = paymentTotal(data?.due || [], "pending");
+function PaymentAmountControl({ payment, maxAmount, payNow }) {
+  const [amount, setAmount] = useState("");
+  const numericAmount = Number(amount);
+  const amountLimit = Number(maxAmount || 0);
+  const hasAmount = amount.trim() !== "";
+  const isValidAmount = Number.isFinite(numericAmount) && numericAmount > 0 && numericAmount <= amountLimit;
+
+  return (
+    <div className="payment-control">
+      <label className="field payment-amount-field">
+        <span>Custom amount</span>
+        <input
+          inputMode="numeric"
+          max={amountLimit || undefined}
+          min="1"
+          onChange={(event) => setAmount(event.target.value)}
+          placeholder={amountLimit > 0 ? `Up to ${money(amountLimit)}` : "Amount"}
+          step="1"
+          type="number"
+          value={amount}
+        />
+      </label>
+      <button
+        className="primary-button"
+        disabled={!isValidAmount}
+        onClick={() => payNow(payment, numericAmount)}
+        type="button"
+      >
+        <CreditCard aria-hidden="true" size={18} strokeWidth={2.3} />
+        Pay now
+      </button>
+      {hasAmount && !isValidAmount && (
+        <small className="payment-control-note">Enter up to {money(amountLimit)}</small>
+      )}
+    </div>
+  );
+}
+
+function OwnerDashboard({ data, setPage, payNow }) {
+  const payablePayments = [...(data?.current || []), ...(data?.due || [])].filter(
+    (payment) => payment.status !== "paid" && Number(payment.amount || 0) > 0,
+  );
+  const pendingTotal = paymentTotal(payablePayments, "pending");
   const paidTotal = paymentTotal(data?.paid || [], "paid");
   const currentCount = (data?.current || []).filter((payment) => payment.status !== "paid").length;
+  const dashboardPayment = payablePayments[0]
+    ? {
+        ...payablePayments[0],
+        amount: pendingTotal,
+        description: "Maintenance due payment",
+      }
+    : null;
 
   return (
     <>
@@ -1041,10 +1089,14 @@ function OwnerDashboard({ data, setPage }) {
           <h2>{data?.name || "Owner"}</h2>
           <p>{pendingTotal > 0 ? `${money(pendingTotal)} pending` : "All dues are clear"}</p>
         </div>
-        <button className="primary-button" onClick={() => setPage("payment")} type="button">
-          <WalletCards aria-hidden="true" size={18} strokeWidth={2.3} />
-          Pay now
-        </button>
+        {dashboardPayment ? (
+          <PaymentAmountControl maxAmount={pendingTotal} payNow={payNow} payment={dashboardPayment} />
+        ) : (
+          <button className="primary-button" onClick={() => setPage("payment")} type="button">
+            <WalletCards aria-hidden="true" size={18} strokeWidth={2.3} />
+            Pay now
+          </button>
+        )}
       </section>
 
       <section className="stats-grid">
@@ -1115,10 +1167,7 @@ function OwnerPayments({ payments, title, emptyTitle, payNow, setPage }) {
             </p>
             <h2>{money(payment.amount)}</h2>
             <p>{title}</p>
-            <button className="primary-button" onClick={() => payNow(payment)} type="button">
-              <CreditCard aria-hidden="true" size={18} strokeWidth={2.3} />
-              Pay now
-            </button>
+            <PaymentAmountControl maxAmount={Number(payment.amount || 0)} payNow={payNow} payment={payment} />
           </article>
         ))}
       </section>
@@ -1502,7 +1551,20 @@ export default function SocietyApp() {
     }
   };
 
-  const payNow = async (payment) => {
+  const payNow = async (payment, customAmount) => {
+    const dueAmount = Number(payment?.amount || 0);
+    const amountToPay = Number(customAmount ?? dueAmount);
+
+    if (!payment?._id || !Number.isFinite(amountToPay) || amountToPay <= 0) {
+      notify("Enter a valid payment amount", "error");
+      return;
+    }
+
+    if (amountToPay > dueAmount) {
+      notify(`Amount cannot exceed ${money(dueAmount)}`, "error");
+      return;
+    }
+
     if (!window.Razorpay) {
       notify("Payment system is still loading", "error");
       return;
@@ -1516,7 +1578,8 @@ export default function SocietyApp() {
     try {
       const order = await apiRequest("/create-order", {
         method: "POST",
-        body: { amount: payment.amount },
+        token,
+        body: { amount: amountToPay, paymentId: payment._id },
       });
 
       const checkout = new window.Razorpay({
@@ -1524,7 +1587,7 @@ export default function SocietyApp() {
         amount: order.amount,
         currency: order.currency || "INR",
         name: "New Town Society",
-        description: `${payment.month} ${payment.year} maintenance`,
+        description: payment.description || `${payment.month} ${payment.year} maintenance`,
         order_id: order.id,
         prefill: {
           name: data?.name || "",
@@ -1540,6 +1603,7 @@ export default function SocietyApp() {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
+              paidAmount: amountToPay,
             },
           });
           notify("Payment successful");
@@ -1931,7 +1995,9 @@ export default function SocietyApp() {
           <ComplaintsScreen complaints={complaints} loadComplaints={loadComplaints} />
         )}
 
-        {role === "owner" && page === "dashboard" && <OwnerDashboard data={ownerData} setPage={setPage} />}
+        {role === "owner" && page === "dashboard" && (
+          <OwnerDashboard data={ownerData} payNow={payNow} setPage={setPage} />
+        )}
 
         {role === "owner" && page === "payment" && (
           <OwnerPayments

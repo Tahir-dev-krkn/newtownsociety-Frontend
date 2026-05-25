@@ -810,6 +810,34 @@ a {
   background: #f1f5f9;
 }
 
+.payment-control {
+  width: min(100%, 430px);
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.payment-control .primary-button {
+  min-width: 140px;
+}
+
+.payment-control-note {
+  grid-column: 1 / -1;
+  color: var(--red);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.owner-hero .payment-control .field span,
+.owner-hero .payment-control-note {
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.owner-hero .payment-control input {
+  background: rgba(255, 255, 255, 0.94);
+}
+
 .owner-hero {
   min-height: 220px;
   margin-bottom: 18px;
@@ -1115,6 +1143,14 @@ a {
   .owner-hero {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .payment-control {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-control .primary-button {
+    width: 100%;
   }
 
   .toolbar {
