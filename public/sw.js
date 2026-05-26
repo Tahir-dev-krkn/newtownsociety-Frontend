@@ -1,5 +1,11 @@
-const CACHE_NAME = "new-town-society-v3";
-const APP_SHELL = ["/", "/manifest.webmanifest", "/icons/new-town-icon.svg"];
+const CACHE_NAME = "new-town-society-v4";
+const APP_SHELL = [
+  "/",
+  "/manifest.webmanifest",
+  "/icons/new-town-icon.svg",
+  "/icons/new-town-icon-192.png",
+  "/icons/new-town-icon-512.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

@@ -12,8 +12,12 @@ export const metadata = {
     statusBarStyle: "default",
   },
   icons: {
-    icon: "/icons/new-town-icon.svg",
-    apple: "/icons/new-town-icon.svg",
+    icon: [
+      { url: "/icons/new-town-icon.svg", type: "image/svg+xml" },
+      { url: "/icons/new-town-icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/new-town-icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/icons/new-town-icon-180.png",
   },
 };
 
