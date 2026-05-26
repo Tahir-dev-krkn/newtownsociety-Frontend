@@ -1290,6 +1290,7 @@ export default function SocietyApp() {
   const [payments, setPayments] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [toast, setToast] = useState({ message: "", type: "success" });
+  const [runtimeRazorpayKey, setRuntimeRazorpayKey] = useState("");
 
   const [authMode, setAuthMode] = useState("login");
   const [flat, setFlat] = useState("");
@@ -1551,6 +1552,24 @@ export default function SocietyApp() {
     }
   };
 
+  const getRazorpayKey = async () => {
+    if (runtimeRazorpayKey) return runtimeRazorpayKey;
+
+    try {
+      const config = await apiRequest("/payment-config", { token });
+      const backendKey = config?.razorpayKeyId || "";
+
+      if (backendKey) {
+        setRuntimeRazorpayKey(backendKey);
+        return backendKey;
+      }
+    } catch (error) {
+      console.warn("Could not load backend payment config", error);
+    }
+
+    return RAZORPAY_KEY;
+  };
+
   const payNow = async (payment, customAmount) => {
     const dueAmount = Number(payment?.amount || 0);
     const amountToPay = Number(customAmount ?? dueAmount);
@@ -1570,12 +1589,14 @@ export default function SocietyApp() {
       return;
     }
 
-    if (!RAZORPAY_KEY) {
-      notify("Payment key is not configured", "error");
-      return;
-    }
-
     try {
+      const checkoutKey = await getRazorpayKey();
+
+      if (!checkoutKey) {
+        notify("Payment key is not configured", "error");
+        return;
+      }
+
       const order = await apiRequest("/create-order", {
         method: "POST",
         token,
@@ -1583,7 +1604,7 @@ export default function SocietyApp() {
       });
 
       const checkout = new window.Razorpay({
-        key: RAZORPAY_KEY,
+        key: checkoutKey,
         amount: order.amount,
         currency: order.currency || "INR",
         name: "New Town Society",
