@@ -1,7 +1,10 @@
-const CACHE_NAME = "new-town-society-v4";
+const CACHE_NAME = "new-town-society-v5";
 const APP_SHELL = [
   "/",
+  "/manifest.json",
   "/manifest.webmanifest",
+  "/icon-192.png",
+  "/icon-512.png",
   "/icons/new-town-icon.svg",
   "/icons/new-town-icon-192.png",
   "/icons/new-town-icon-512.png",

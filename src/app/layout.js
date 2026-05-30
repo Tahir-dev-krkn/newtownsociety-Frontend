@@ -5,7 +5,7 @@ export const metadata = {
   title: "New Town Society",
   description: "Society maintenance, dues, payments, reports, and support.",
   applicationName: "New Town Society",
-  manifest: "/manifest.webmanifest",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     title: "New Town Society",
