@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.newtwnsociety.app",
+      "sha256_cert_fingerprints": [
+        "35:D1:88:74:BE:25:20:31:F1:BE:2C:11:69:51:82:10:9E:09:7D:1F:01:7C:1B:FD:C3:58:59:92:64:84:FF:12"
+      ]
+    }
+  }
+]
