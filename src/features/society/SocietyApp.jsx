@@ -76,6 +76,28 @@ const iconMap = {
   profile: User,
 };
 
+const ADMIN_TITLES = {
+  dashboard: "Society overview",
+  members: "Resident directory",
+  addMember: "Add resident",
+  editMember: "Edit resident",
+  addDue: "Add maintenance charge",
+  pending: "Overdue balances",
+  history: "Payment records",
+  excel: "Reports",
+  complaints: "Service requests",
+};
+
+const OWNER_TITLES = {
+  dashboard: "Account overview",
+  payment: "Current dues",
+  due: "Outstanding dues",
+  history: "Receipts",
+  profile: "Account",
+  editProfile: "Edit account",
+  support: "Support request",
+};
+
 function Icon({ name, size = 18 }) {
   const IconComponent = iconMap[name] || ShieldCheck;
 
@@ -125,7 +147,7 @@ function Brand() {
       </div>
       <div>
         <p className="brand-name">New Town Society</p>
-        <p className="brand-subtitle">Resident command center</p>
+        <p className="brand-subtitle">Maintenance portal</p>
       </div>
     </div>
   );
@@ -280,7 +302,7 @@ function LoadingScreen() {
       <section className="auth-card compact">
         <Brand />
         <div className="loading-line" />
-        <p className="muted">Opening your society app...</p>
+        <p className="muted">Preparing your account...</p>
       </section>
     </main>
   );
@@ -293,20 +315,20 @@ function OpeningScreen({ onStart }) {
         <Brand />
         <div className="landing-copy">
           <p className="eyebrow">NEW TOWN SOCIETY</p>
-          <h1>Maintenance payments made simple for every flat owner.</h1>
+          <h1>Dues, payments, and support.</h1>
           <p>
-            Owners can pay dues, view history, update profiles, and raise support
-            requests. Admins can manage members, reminders, complaints, and reports.
+            Pay maintenance, review receipts, manage resident records, and handle
+            service requests through one connected portal.
           </p>
         </div>
 
         <div className="landing-actions">
           <button className="primary-button" onClick={onStart} type="button">
             <ShieldCheck aria-hidden="true" size={18} strokeWidth={2.3} />
-            Login securely
+            Sign in
           </button>
           <a className="secondary-link-button" href="/privacy-policy">
-            Privacy policy
+            Privacy
           </a>
         </div>
       </section>
@@ -314,18 +336,18 @@ function OpeningScreen({ onStart }) {
       <section className="landing-card-grid" aria-label="App highlights">
         <article className="landing-card">
           <WalletCards aria-hidden="true" size={28} strokeWidth={2.3} />
-          <h2>Owner app</h2>
-          <p>Pay maintenance, check dues, receipts, and support from phone.</p>
+          <h2>Resident payments</h2>
+          <p>Settle maintenance dues, view balances, and keep receipts in one place.</p>
         </article>
         <article className="landing-card">
           <Gauge aria-hidden="true" size={28} strokeWidth={2.3} />
-          <h2>Admin control</h2>
-          <p>Track collection, members, pending dues, complaints, and exports.</p>
+          <h2>Society operations</h2>
+          <p>Track collections, residents, overdue balances, requests, and reports.</p>
         </article>
         <article className="landing-card">
           <Smartphone aria-hidden="true" size={28} strokeWidth={2.3} />
-          <h2>Installable</h2>
-          <p>Works on web and can be installed like a mobile app.</p>
+          <h2>Mobile ready</h2>
+          <p>Access the portal from web or Android with a focused app experience.</p>
         </article>
       </section>
     </main>
@@ -354,37 +376,37 @@ function AuthScreen({
   busy,
 }) {
   const authTitle = {
-    login: "Login",
+    login: "Sign in",
     forgot: "Reset password",
     resetSent: "Check your email",
     resetLink: "Set new password",
     emailVerify: "Verify email",
-  }[authMode] || "Login";
+  }[authMode] || "Sign in";
 
   return (
     <main className="auth-screen">
       <section className="auth-panel">
         <Brand />
         <div className="auth-copy">
-          <p className="eyebrow">Web and mobile app</p>
-          <h1>Smart dues, payments, reports, and support in one place.</h1>
+          <p className="eyebrow">Resident services portal</p>
+          <h1>Maintenance payments, records, and support in one secure place.</h1>
           <p>
-            A faster resident experience for owners, with a clean control room for
-            society admins.
+            Built for residents and society teams to manage dues, requests, and
+            records with confidence.
           </p>
         </div>
         <div className="auth-visual" aria-hidden="true">
           <div className="visual-stat">
             <span>Collection</span>
-            <strong>Live</strong>
+            <strong>Tracked</strong>
           </div>
           <div className="visual-stat">
-            <span>Reminders</span>
-            <strong>Auto</strong>
+            <span>Receipts</span>
+            <strong>Ready</strong>
           </div>
           <div className="visual-stat">
             <span>Reports</span>
-            <strong>XLSX</strong>
+            <strong>Export</strong>
           </div>
         </div>
       </section>
@@ -396,7 +418,7 @@ function AuthScreen({
           type="button"
         >
           <ArrowLeft aria-hidden="true" size={16} strokeWidth={2.3} />
-          Opening page
+          Welcome
         </button>
 
         <h2>{authTitle}</h2>
@@ -417,14 +439,14 @@ function AuthScreen({
               type="button"
             >
               <ShieldCheck aria-hidden="true" size={18} strokeWidth={2.3} />
-              Login
+              Sign in
             </button>
             <button
               className="text-button"
               onClick={() => setAuthMode("forgot")}
               type="button"
             >
-              Forgot password
+              Reset password
             </button>
           </>
         )}
@@ -455,7 +477,7 @@ function AuthScreen({
               type="button"
             >
               <ShieldCheck aria-hidden="true" size={18} strokeWidth={2.3} />
-              Verify and login
+              Verify and sign in
             </button>
 
             <button className="secondary-button" disabled={busy} onClick={login} type="button">
@@ -467,7 +489,7 @@ function AuthScreen({
 
         {authMode === "forgot" && (
           <>
-            <TextField label="Email" value={resetEmail} onChange={setResetEmail} />
+            <TextField label="Registered email" value={resetEmail} onChange={setResetEmail} />
             <button
               className="primary-button"
               disabled={busy}
@@ -482,7 +504,7 @@ function AuthScreen({
               onClick={() => setAuthMode("login")}
               type="button"
             >
-              Back to login
+              Back to sign in
             </button>
           </>
         )}
@@ -510,7 +532,7 @@ function AuthScreen({
               onClick={() => setAuthMode("login")}
               type="button"
             >
-              Back to login
+              Back to sign in
             </button>
           </>
         )}
@@ -544,7 +566,7 @@ function AuthScreen({
               onClick={() => setAuthMode("login")}
               type="button"
             >
-              Back to login
+              Back to sign in
             </button>
           </>
         )}
@@ -586,24 +608,24 @@ function AdminDashboard({ members, setPage, openComplaints, refreshing }) {
       <div className="quick-actions">
         <button className="primary-button" onClick={() => setPage("members")} type="button">
           <Users aria-hidden="true" size={18} strokeWidth={2.3} />
-          Manage members
+          Manage residents
         </button>
         <button className="secondary-button" onClick={openComplaints} type="button">
           <Bell aria-hidden="true" size={18} strokeWidth={2.3} />
-          Complaints
+          Service requests
         </button>
       </div>
 
       <section className="stats-grid">
-        <StatCard label="Members" value={owners.length} tone="blue" action={() => setPage("members")} />
-        <StatCard label="Paid" value={money(totalPaid)} tone="green" />
-        <StatCard label="Pending" value={money(totalPending)} tone="red" action={() => setPage("pending")} />
-        <StatCard label="Defaulters" value={pendingMembers} tone="amber" action={() => setPage("pending")} />
+        <StatCard label="Residents" value={owners.length} tone="blue" action={() => setPage("members")} />
+        <StatCard label="Collected" value={money(totalPaid)} tone="green" />
+        <StatCard label="Outstanding" value={money(totalPending)} tone="red" action={() => setPage("pending")} />
+        <StatCard label="Overdue flats" value={pendingMembers} tone="amber" action={() => setPage("pending")} />
       </section>
 
       <section className="panel chart-panel">
         <div className="panel-heading">
-          <h2>Collection overview</h2>
+          <h2>Collection summary</h2>
           {refreshing && <span className="status-pill">Refreshing</span>}
         </div>
         <Bar
@@ -611,7 +633,7 @@ function AdminDashboard({ members, setPage, openComplaints, refreshing }) {
             labels: MONTHS.map((month) => month.slice(0, 3)),
             datasets: [
               { label: "Paid", data: monthlyPaid, backgroundColor: "#16a34a", borderRadius: 8 },
-              { label: "Pending", data: monthlyPending, backgroundColor: "#dc2626", borderRadius: 8 },
+              { label: "Outstanding", data: monthlyPending, backgroundColor: "#dc2626", borderRadius: 8 },
             ],
           }}
           options={chartOptions}
@@ -663,8 +685,8 @@ function MembersScreen({
         <TextField label="Search" value={search} onChange={setSearch} placeholder="Name or flat" />
         <SelectField label="Status" value={filter} onChange={setFilter}>
           <option value="all">All</option>
-          <option value="pending">Pending</option>
-          <option value="paid">Paid</option>
+          <option value="pending">Outstanding</option>
+          <option value="paid">Settled</option>
         </SelectField>
         <SelectField label="Sort" value={sortType} onChange={setSortType}>
           <option value="none">Default</option>
@@ -673,7 +695,7 @@ function MembersScreen({
         </SelectField>
         <button className="primary-button" onClick={() => setPage("addMember")} type="button">
           <Plus aria-hidden="true" size={18} strokeWidth={2.3} />
-          Add member
+          New resident
         </button>
       </div>
 
@@ -689,7 +711,7 @@ function MembersScreen({
 
             <div className="member-meta">
               <span className={member.pendingAmount > 0 ? "status-pill danger" : "status-pill success"}>
-                {member.pendingAmount > 0 ? `${money(member.pendingAmount)} pending` : "Clear"}
+                {member.pendingAmount > 0 ? `${money(member.pendingAmount)} outstanding` : "Settled"}
               </span>
               <span>{Number(member.area || 0)} sq ft</span>
             </div>
@@ -697,7 +719,7 @@ function MembersScreen({
             <div className="button-row">
               <button className="secondary-button" onClick={() => openDue(member)} type="button">
                 <ReceiptText aria-hidden="true" size={17} strokeWidth={2.3} />
-                Add due
+                Add charge
               </button>
               <button className="secondary-button" onClick={() => openEdit(member)} type="button">
                 <Edit3 aria-hidden="true" size={17} strokeWidth={2.3} />
@@ -705,7 +727,7 @@ function MembersScreen({
               </button>
               <button className="secondary-button" onClick={() => sendReminder(member._id)} type="button">
                 <Send aria-hidden="true" size={17} strokeWidth={2.3} />
-                Remind
+                Reminder
               </button>
               <button className="danger-button" onClick={() => deleteMember(member._id)} type="button">
                 <Trash2 aria-hidden="true" size={17} strokeWidth={2.3} />
@@ -716,7 +738,7 @@ function MembersScreen({
         ))}
       </section>
 
-      {filteredMembers.length === 0 && <EmptyState title="No members found" />}
+      {filteredMembers.length === 0 && <EmptyState title="No residents found" />}
     </>
   );
 }
@@ -728,15 +750,15 @@ function MemberForm({ title, values, setValues, onSubmit, onBack, submitLabel })
     <section className="form-panel">
       <BackButton onClick={onBack} />
       <h2>{title}</h2>
-      <TextField label="Name" value={values.name || ""} onChange={(value) => update("name", value)} />
+      <TextField label="Resident name" value={values.name || ""} onChange={(value) => update("name", value)} />
       <TextField
         label="Flat number"
         value={values.flatNumber || ""}
         onChange={(value) => update("flatNumber", value)}
       />
-      <TextField label="Area" value={values.area || ""} onChange={(value) => update("area", value)} />
-      <TextField label="Phone" value={values.phone || ""} onChange={(value) => update("phone", value)} />
-      <TextField label="Email" value={values.email || ""} onChange={(value) => update("email", value)} />
+      <TextField label="Area (sq ft)" value={values.area || ""} onChange={(value) => update("area", value)} />
+      <TextField label="Phone number" value={values.phone || ""} onChange={(value) => update("phone", value)} />
+      <TextField label="Email address" value={values.email || ""} onChange={(value) => update("email", value)} />
       <button className="primary-button" onClick={onSubmit} type="button">
         <CheckCircle2 aria-hidden="true" size={18} strokeWidth={2.3} />
         {submitLabel}
@@ -766,7 +788,7 @@ function AddDueScreen({
     <section className="form-panel">
       <BackButton onClick={onBack} />
       <p className="card-kicker">Flat {member?.flatNumber}</p>
-      <h2>Add maintenance due</h2>
+      <h2>Add maintenance charge</h2>
       <SelectField label="From month" value={fromMonth} onChange={setFromMonth}>
         <option value="">Select month</option>
         {MONTHS.map((month) => (
@@ -793,13 +815,13 @@ function AddDueScreen({
       </SelectField>
 
       <div className="calculation-card">
-        <span>{months} month(s)</span>
+        <span>{months} billing month(s)</span>
         <strong>{money(amount)}</strong>
       </div>
 
       <button className="primary-button" disabled={!amount} onClick={onSubmit} type="button">
         <Plus aria-hidden="true" size={18} strokeWidth={2.3} />
-        Add due
+        Add charge
       </button>
     </section>
   );
@@ -848,15 +870,15 @@ function AdminHistory({
     <>
       <section className="panel chart-panel small">
         <div className="panel-heading">
-          <h2>Payment mix</h2>
+          <h2>Payment status</h2>
           <button className="primary-button slim" onClick={() => exportHistory(filtered)} type="button">
             <Download aria-hidden="true" size={17} strokeWidth={2.3} />
-            Export
+            Download
           </button>
         </div>
         <Bar
           data={{
-            labels: ["Paid", "Pending"],
+            labels: ["Collected", "Outstanding"],
             datasets: [
               {
                 label: "Amount",
@@ -883,8 +905,8 @@ function AdminHistory({
           onChange={(value) => setFilters((current) => ({ ...current, status: value }))}
         >
           <option value="all">All</option>
-          <option value="paid">Paid</option>
-          <option value="pending">Pending</option>
+          <option value="paid">Collected</option>
+          <option value="pending">Outstanding</option>
         </SelectField>
         <SelectField
           label="Month"
@@ -934,14 +956,14 @@ function AdminHistory({
             <div>
               <strong>{money(payment.amount)}</strong>
               <span className={payment.status === "paid" ? "status-pill success" : "status-pill danger"}>
-                {payment.status}
+                {payment.status === "paid" ? "Collected" : "Outstanding"}
               </span>
             </div>
           </article>
         ))}
       </section>
 
-      {filtered.length === 0 && <EmptyState title="No payments found" />}
+      {filtered.length === 0 && <EmptyState title="No payment records found" />}
     </>
   );
 }
@@ -949,7 +971,7 @@ function AdminHistory({
 function ExportScreen({ excelFlat, setExcelFlat, dates, setDates, downloadExcel }) {
   return (
     <section className="form-panel">
-      <h2>Export payment report</h2>
+      <h2>Download payment report</h2>
       <TextField label="Flat number" value={excelFlat} onChange={setExcelFlat} placeholder="Optional" />
       <TextField
         label="From"
@@ -965,7 +987,7 @@ function ExportScreen({ excelFlat, setExcelFlat, dates, setDates, downloadExcel 
       />
       <button className="primary-button" onClick={downloadExcel} type="button">
         <Download aria-hidden="true" size={18} strokeWidth={2.3} />
-        Download Excel
+        Download report
       </button>
     </section>
   );
@@ -993,11 +1015,11 @@ function PendingScreen({ members }) {
           </div>
           <div>
             <strong>{money(item.amount)}</strong>
-            <span className="status-pill danger">Pending</span>
+            <span className="status-pill danger">Outstanding</span>
           </div>
         </article>
       ))}
-      {pending.length === 0 && <EmptyState title="No pending dues" />}
+      {pending.length === 0 && <EmptyState title="No outstanding dues" />}
     </section>
   );
 }
@@ -1008,7 +1030,7 @@ function ComplaintsScreen({ complaints, loadComplaints }) {
       <div className="quick-actions">
         <button className="secondary-button" onClick={loadComplaints} type="button">
           <Bell aria-hidden="true" size={18} strokeWidth={2.3} />
-          Refresh complaints
+          Refresh requests
         </button>
       </div>
       <section className="list-grid">
@@ -1022,7 +1044,7 @@ function ComplaintsScreen({ complaints, loadComplaints }) {
             <p className="complaint-message">{complaint.message}</p>
           </article>
         ))}
-        {complaints.length === 0 && <EmptyState title="No complaints" />}
+        {complaints.length === 0 && <EmptyState title="No service requests" />}
       </section>
     </>
   );
@@ -1038,13 +1060,13 @@ function PaymentAmountControl({ payment, maxAmount, payNow }) {
   return (
     <div className="payment-control">
       <label className="field payment-amount-field">
-        <span>Custom amount</span>
+        <span>Payment amount</span>
         <input
           inputMode="numeric"
           max={amountLimit || undefined}
           min="1"
           onChange={(event) => setAmount(event.target.value)}
-          placeholder={amountLimit > 0 ? `Up to ${money(amountLimit)}` : "Amount"}
+          placeholder={amountLimit > 0 ? `Maximum ${money(amountLimit)}` : "Amount"}
           step="1"
           type="number"
           value={amount}
@@ -1060,7 +1082,7 @@ function PaymentAmountControl({ payment, maxAmount, payNow }) {
         Pay now
       </button>
       {hasAmount && !isValidAmount && (
-        <small className="payment-control-note">Enter up to {money(amountLimit)}</small>
+        <small className="payment-control-note">Amount must be {money(amountLimit)} or less</small>
       )}
     </div>
   );
@@ -1087,7 +1109,7 @@ function OwnerDashboard({ data, setPage, payNow }) {
         <div>
           <p className="eyebrow">Flat {data?.flatNumber || "--"}</p>
           <h2>{data?.name || "Owner"}</h2>
-          <p>{pendingTotal > 0 ? `${money(pendingTotal)} pending` : "All dues are clear"}</p>
+          <p>{pendingTotal > 0 ? `${money(pendingTotal)} outstanding` : "All dues are settled"}</p>
         </div>
         {dashboardPayment ? (
           <PaymentAmountControl maxAmount={pendingTotal} payNow={payNow} payment={dashboardPayment} />
@@ -1100,19 +1122,19 @@ function OwnerDashboard({ data, setPage, payNow }) {
       </section>
 
       <section className="stats-grid">
-        <StatCard label="Total due" value={money(pendingTotal)} tone="red" action={() => setPage("due")} />
-        <StatCard label="Current bills" value={currentCount} tone="blue" action={() => setPage("payment")} />
-        <StatCard label="Paid total" value={money(paidTotal)} tone="green" action={() => setPage("history")} />
-        <StatCard label="Profile" value="Open" tone="amber" action={() => setPage("profile")} />
+        <StatCard label="Outstanding" value={money(pendingTotal)} tone="red" action={() => setPage("due")} />
+        <StatCard label="Current dues" value={currentCount} tone="blue" action={() => setPage("payment")} />
+        <StatCard label="Paid amount" value={money(paidTotal)} tone="green" action={() => setPage("history")} />
+        <StatCard label="Account" value="View" tone="amber" action={() => setPage("profile")} />
       </section>
 
       <section className="panel chart-panel small">
         <div className="panel-heading">
-          <h2>Payment overview</h2>
+          <h2>Account summary</h2>
         </div>
         <Bar
           data={{
-            labels: ["Paid", "Pending"],
+            labels: ["Paid", "Outstanding"],
             datasets: [
               {
                 label: "Amount",
@@ -1128,7 +1150,7 @@ function OwnerDashboard({ data, setPage, payNow }) {
 
       <section className="panel">
         <div className="panel-heading">
-          <h2>Recent payments</h2>
+          <h2>Recent receipts</h2>
           <button className="text-button inline" onClick={() => setPage("history")} type="button">
             <History aria-hidden="true" size={16} strokeWidth={2.3} />
             View all
@@ -1140,12 +1162,12 @@ function OwnerDashboard({ data, setPage, payNow }) {
               <strong>
                 {payment.month} {payment.year}
               </strong>
-              <span>Paid</span>
+              <span>Receipt recorded</span>
             </div>
             <strong>{money(payment.amount)}</strong>
           </article>
         ))}
-        {(data?.paid || []).length === 0 && <EmptyState title="No payments yet" />}
+        {(data?.paid || []).length === 0 && <EmptyState title="No receipts yet" />}
       </section>
     </>
   );
@@ -1189,7 +1211,7 @@ function OwnerHistory({ paid, setPage }) {
               <strong>
                 {payment.month} {payment.year}
               </strong>
-              <span>Paid maintenance</span>
+              <span>Maintenance receipt</span>
             </div>
             <div>
               <strong>{money(payment.amount)}</strong>
@@ -1198,7 +1220,7 @@ function OwnerHistory({ paid, setPage }) {
           </article>
         ))}
       </section>
-      {(paid || []).length === 0 && <EmptyState title="No payment history" />}
+      {(paid || []).length === 0 && <EmptyState title="No receipts available" />}
     </>
   );
 }
@@ -1223,18 +1245,18 @@ function OwnerProfile({ data, profileDue, setPage, logout }) {
         <div className="button-row center">
           <button className="primary-button" onClick={() => setPage("editProfile")} type="button">
             <Edit3 aria-hidden="true" size={18} strokeWidth={2.3} />
-            Edit profile
+            Edit account
           </button>
           <button className="secondary-button" onClick={() => setPage("support")} type="button">
             <MessageCircle aria-hidden="true" size={18} strokeWidth={2.3} />
-            Help and support
+            Support
           </button>
         </div>
       </div>
 
       <section className="stats-grid">
-        <StatCard label="Due status" value={profileDue > 0 ? "Pending" : "Clear"} tone={profileDue > 0 ? "red" : "green"} />
-        <StatCard label="Total due" value={money(profileDue)} tone="blue" />
+        <StatCard label="Balance status" value={profileDue > 0 ? "Outstanding" : "Settled"} tone={profileDue > 0 ? "red" : "green"} />
+        <StatCard label="Outstanding" value={money(profileDue)} tone="blue" />
       </section>
 
       <button className="danger-button full" onClick={logout} type="button">
@@ -1249,9 +1271,9 @@ function EditProfile({ phone, setPhone, email, setEmail, updateProfile, setPage 
   return (
     <section className="form-panel">
       <BackButton onClick={() => setPage("profile")} />
-      <h2>Edit profile</h2>
-      <TextField label="Phone" value={phone} onChange={setPhone} />
-      <TextField label="Email" value={email} onChange={setEmail} />
+      <h2>Edit account</h2>
+      <TextField label="Phone number" value={phone} onChange={setPhone} />
+      <TextField label="Email address" value={email} onChange={setEmail} />
       <button className="primary-button" onClick={updateProfile} type="button">
         <CheckCircle2 aria-hidden="true" size={18} strokeWidth={2.3} />
         Save changes
@@ -1264,16 +1286,16 @@ function SupportScreen({ complaint, setComplaint, submitComplaint, setPage }) {
   return (
     <section className="form-panel">
       <BackButton onClick={() => setPage("profile")} />
-      <h2>Help and support</h2>
+      <h2>Support request</h2>
       <TextareaField
-        label="Complaint message"
+        label="Request details"
         value={complaint}
         onChange={setComplaint}
-        placeholder="Write your issue"
+        placeholder="Describe what you need help with"
       />
       <button className="primary-button" onClick={submitComplaint} type="button">
         <Send aria-hidden="true" size={18} strokeWidth={2.3} />
-        Submit complaint
+        Submit request
       </button>
     </section>
   );
@@ -1449,7 +1471,7 @@ export default function SocietyApp() {
           setVerificationEmail(response.email || "");
           setVerifyEmailOtp("");
           setAuthMode("emailVerify");
-          notify(response.message || "Verify your email before login");
+          notify(response.message || "Verify your email before signing in");
           return;
         }
 
@@ -1462,9 +1484,9 @@ export default function SocietyApp() {
       setToken(response.token);
       setRole(response.role);
       setPage("dashboard");
-      notify("Login successful");
+      notify("Signed in successfully");
     } catch (error) {
-      notify(error.message || "Login failed", "error");
+      notify(error.message || "Sign in failed", "error");
     } finally {
       setBusy(false);
     }
@@ -1668,7 +1690,7 @@ export default function SocietyApp() {
       !cleanDraft.phone ||
       !cleanDraft.email
     ) {
-      notify("Please fill all member details", "error");
+      notify("Please fill all resident details", "error");
       return;
     }
 
@@ -1684,12 +1706,12 @@ export default function SocietyApp() {
         responseType: "text",
         body: cleanDraft,
       });
-      notify(message || "Member added");
+      notify(message || "Resident added");
       setMemberDraft({ name: "", flatNumber: "", area: "", phone: "", email: "" });
       await loadData();
       setPage("members");
     } catch (error) {
-      notify(error.message || "Member could not be added", "error");
+      notify(error.message || "Resident could not be added", "error");
     }
   };
 
@@ -1715,16 +1737,16 @@ export default function SocietyApp() {
         responseType: "text",
         body: editMemberData,
       });
-      notify("Member updated");
+      notify("Resident updated");
       await loadData();
       setPage("members");
     } catch (error) {
-      notify(error.message || "Member update failed", "error");
+      notify(error.message || "Resident update failed", "error");
     }
   };
 
   const deleteMember = async (memberId) => {
-    if (!window.confirm("Delete this member?")) return;
+    if (!window.confirm("Delete this resident?")) return;
 
     try {
       await apiRequest(`/member/${memberId}`, {
@@ -1732,7 +1754,7 @@ export default function SocietyApp() {
         token,
         responseType: "text",
       });
-      notify("Member deleted");
+      notify("Resident deleted");
       await loadData();
     } catch (error) {
       notify(error.message || "Delete failed", "error");
@@ -1770,11 +1792,11 @@ export default function SocietyApp() {
           amount,
         },
       });
-      notify("Due added");
+      notify("Maintenance charge added");
       await loadData();
       setPage("members");
     } catch (error) {
-      notify(error.message || "Due could not be added", "error");
+      notify(error.message || "Maintenance charge could not be added", "error");
     }
   };
 
@@ -1821,17 +1843,17 @@ export default function SocietyApp() {
           email: editEmail,
         },
       });
-      notify("Profile updated");
+      notify("Account updated");
       await loadData();
       setPage("profile");
     } catch (error) {
-      notify(error.message || "Profile update failed", "error");
+      notify(error.message || "Account update failed", "error");
     }
   };
 
   const submitComplaint = async () => {
     if (!complaint.trim()) {
-      notify("Write complaint message", "error");
+      notify("Write your request details", "error");
       return;
     }
 
@@ -1842,10 +1864,10 @@ export default function SocietyApp() {
         responseType: "text",
         body: { message: complaint.trim() },
       });
-      notify(message || "Complaint submitted");
+      notify(message || "Request submitted");
       setComplaint("");
     } catch (error) {
-      notify(error.message || "Complaint failed", "error");
+      notify(error.message || "Request could not be submitted", "error");
     }
   };
 
@@ -1854,7 +1876,7 @@ export default function SocietyApp() {
     try {
       await loadComplaints();
     } catch (error) {
-      notify(error.message || "Could not load complaints", "error");
+      notify(error.message || "Could not load service requests", "error");
     }
   };
 
@@ -1903,20 +1925,19 @@ export default function SocietyApp() {
   }
 
   const navItems = role === "admin" ? ADMIN_NAV : OWNER_NAV;
-  const title =
-    role === "admin"
-      ? page === "dashboard"
-        ? "Admin dashboard"
-        : ADMIN_NAV.find((item) => item.name === page)?.label || "Admin"
-      : page === "dashboard"
-        ? "Owner dashboard"
-        : OWNER_NAV.find((item) => item.name === page)?.label || "Owner";
+  const title = role === "admin"
+    ? ADMIN_TITLES[page] || "Management"
+    : OWNER_TITLES[page] || "Resident account";
 
   return (
     <>
       <AppShell
         title={title}
-        subtitle={role === "admin" ? "Collections, members, reports, and complaints" : "Maintenance, dues, profile, and support"}
+        subtitle={
+          role === "admin"
+            ? "Collections, residents, reports, and service requests"
+            : "Maintenance, payments, receipts, and account support"
+        }
         page={page}
         setPage={setPage}
         navItems={navItems}
@@ -1924,7 +1945,7 @@ export default function SocietyApp() {
         headerActions={
           role === "admin" ? (
             <button className="secondary-button slim" onClick={openComplaints} type="button">
-              Complaints
+              Requests
             </button>
           ) : null
         }
@@ -1957,18 +1978,18 @@ export default function SocietyApp() {
 
         {role === "admin" && page === "addMember" && (
           <MemberForm
-            title="Add member"
+            title="Add resident"
             values={memberDraft}
             setValues={setMemberDraft}
             onSubmit={addMember}
             onBack={() => setPage("members")}
-            submitLabel="Add member"
+            submitLabel="Create resident"
           />
         )}
 
         {role === "admin" && page === "editMember" && (
           <MemberForm
-            title="Edit member"
+            title="Edit resident"
             values={editMemberData || {}}
             setValues={setEditMemberData}
             onSubmit={updateMember}
@@ -2023,8 +2044,8 @@ export default function SocietyApp() {
         {role === "owner" && page === "payment" && (
           <OwnerPayments
             payments={ownerData?.current || []}
-            title="Current bill"
-            emptyTitle="No current payments"
+            title="Current maintenance due"
+            emptyTitle="No current dues"
             payNow={payNow}
             setPage={setPage}
           />
@@ -2033,8 +2054,8 @@ export default function SocietyApp() {
         {role === "owner" && page === "due" && (
           <OwnerPayments
             payments={ownerData?.due || []}
-            title="Pending due"
-            emptyTitle="No pending dues"
+            title="Outstanding balance"
+            emptyTitle="No outstanding dues"
             payNow={payNow}
             setPage={setPage}
           />

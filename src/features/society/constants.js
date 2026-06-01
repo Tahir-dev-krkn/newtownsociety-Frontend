@@ -24,16 +24,16 @@ export const YEARS = Array.from(
 export const OWNER_NAV = [
   { name: "dashboard", label: "Home", icon: "home" },
   { name: "payment", label: "Pay", icon: "payment" },
-  { name: "due", label: "Due", icon: "due" },
+  { name: "due", label: "Dues", icon: "due" },
   { name: "history", label: "History", icon: "history" },
-  { name: "profile", label: "Profile", icon: "profile" },
+  { name: "profile", label: "Account", icon: "profile" },
 ];
 
 export const ADMIN_NAV = [
-  { name: "dashboard", label: "Dashboard", icon: "dashboard" },
-  { name: "members", label: "Members", icon: "members" },
-  { name: "addMember", label: "Add", icon: "addMember" },
-  { name: "pending", label: "Pending", icon: "due" },
+  { name: "dashboard", label: "Overview", icon: "dashboard" },
+  { name: "members", label: "Residents", icon: "members" },
+  { name: "addMember", label: "New", icon: "addMember" },
+  { name: "pending", label: "Overdue", icon: "due" },
   { name: "history", label: "Payments", icon: "history" },
-  { name: "excel", label: "Export", icon: "export" },
+  { name: "excel", label: "Reports", icon: "export" },
 ];
