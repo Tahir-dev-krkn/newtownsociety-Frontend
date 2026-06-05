@@ -34,6 +34,16 @@ export default function PrivacyPolicy() {
         We use secure technologies and authentication systems to protect user data.
       </p>
 
+      <h2>Data Deletion</h2>
+      <p>
+        Residents can request deletion of their account and personal data from the data deletion page:
+        {" "}
+        <a href="/data-deletion" style={{ color: "#93c5fd" }}>
+          Data Deletion Request
+        </a>
+        .
+      </p>
+
       <h2>Contact Us</h2>
       <p>
         Email: ntsociety98@gmail.com
