@@ -744,6 +744,54 @@ a {
   grid-column: 1 / -1;
 }
 
+.due-list {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.due-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 16px;
+  background: #f8fafc;
+}
+
+.due-item div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.due-item span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.due-actions {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.payment-row .due-actions {
+  display: inline-flex;
+}
+
+.due-actions .secondary-button,
+.due-actions .danger-button {
+  min-height: 36px;
+  border-radius: 12px;
+  padding: 0 12px;
+  box-shadow: none;
+  font-size: 0.84rem;
+}
+
 .member-meta {
   display: grid;
   gap: 8px;
@@ -799,6 +847,36 @@ a {
   max-width: 560px;
   display: grid;
   gap: 16px;
+}
+
+.charge-mode-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #f8fafc;
+}
+
+.charge-mode-toggle button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--muted);
+  background: transparent;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.charge-mode-toggle button.active {
+  color: white;
+  background: linear-gradient(135deg, #0f766e, #2563eb);
+  box-shadow: 0 10px 22px rgba(15, 118, 110, 0.2);
 }
 
 .calculation-card {
@@ -1135,6 +1213,16 @@ a {
 
   .member-card {
     grid-template-columns: 1fr;
+  }
+
+  .due-item {
+    grid-template-columns: 1fr;
+  }
+
+  .due-actions,
+  .due-actions .secondary-button,
+  .due-actions .danger-button {
+    width: 100%;
   }
 
   .member-meta {

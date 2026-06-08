@@ -124,6 +124,21 @@ function paymentTotal(payments = [], status) {
     .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
 }
 
+function paymentLabel(payment) {
+  const description = String(payment?.description || "").trim();
+  const period = `${payment?.month || "Charge"} ${payment?.year || ""}`.trim();
+
+  return description || period;
+}
+
+function paymentMethodLabel(payment) {
+  if (payment?.status !== "paid") return "";
+  if (payment?.paymentMethod === "cash") return "Cash";
+  if (payment?.paymentMethod === "online") return "Online";
+
+  return "Collected";
+}
+
 function Toast({ toast }) {
   if (!toast.message) return null;
 
@@ -643,6 +658,41 @@ function AdminDashboard({ members, setPage, openComplaints, refreshing }) {
   );
 }
 
+function DueActionButtons({ payment, recordCashPayment, deleteDue }) {
+  return (
+    <div className="due-actions">
+      <button className="secondary-button slim" onClick={() => recordCashPayment(payment)} type="button">
+        <CheckCircle2 aria-hidden="true" size={16} strokeWidth={2.3} />
+        Cash
+      </button>
+      <button className="danger-button slim" onClick={() => deleteDue(payment)} type="button">
+        <Trash2 aria-hidden="true" size={16} strokeWidth={2.3} />
+        Delete
+      </button>
+    </div>
+  );
+}
+
+function PendingDueList({ payments = [], recordCashPayment, deleteDue }) {
+  const dues = payments.filter((payment) => payment.status !== "paid");
+
+  if (dues.length === 0) return null;
+
+  return (
+    <div className="due-list">
+      {dues.map((payment, index) => (
+        <div className="due-item" key={payment._id || index}>
+          <div>
+            <strong>{paymentLabel(payment)}</strong>
+            <span>{money(payment.amount)}</span>
+          </div>
+          <DueActionButtons payment={payment} recordCashPayment={recordCashPayment} deleteDue={deleteDue} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function MembersScreen({
   members,
   search,
@@ -656,6 +706,8 @@ function MembersScreen({
   openEdit,
   deleteMember,
   sendReminder,
+  recordCashPayment,
+  deleteDue,
 }) {
   const filteredMembers = members
     .filter((member) => member.role === "owner")
@@ -716,6 +768,12 @@ function MembersScreen({
               <span>{Number(member.area || 0)} sq ft</span>
             </div>
 
+            <PendingDueList
+              payments={member.payments}
+              recordCashPayment={recordCashPayment}
+              deleteDue={deleteDue}
+            />
+
             <div className="button-row">
               <button className="secondary-button" onClick={() => openDue(member)} type="button">
                 <ReceiptText aria-hidden="true" size={17} strokeWidth={2.3} />
@@ -769,12 +827,18 @@ function MemberForm({ title, values, setValues, onSubmit, onBack, submitLabel })
 
 function AddDueScreen({
   member,
+  chargeMode,
+  setChargeMode,
   fromMonth,
   setFromMonth,
   toMonth,
   setToMonth,
   year,
   setYear,
+  customAmount,
+  setCustomAmount,
+  customRemark,
+  setCustomRemark,
   onSubmit,
   onBack,
 }) {
@@ -782,44 +846,90 @@ function AddDueScreen({
   const end = monthIndex(toMonth);
   const months = start >= 0 && end >= start ? end - start + 1 : 0;
   const monthly = Number(member?.monthlyMaintenance || member?.area * 1.5 || 0);
-  const amount = months * monthly;
+  const monthlyAmount = months * monthly;
+  const directAmount = Number(customAmount || 0);
+  const isCustom = chargeMode === "custom";
+  const amount = isCustom ? directAmount : monthlyAmount;
+  const canSubmit = isCustom
+    ? directAmount > 0 && Boolean(customRemark.trim())
+    : monthlyAmount > 0 && Boolean(year);
 
   return (
     <section className="form-panel">
       <BackButton onClick={onBack} />
       <p className="card-kicker">Flat {member?.flatNumber}</p>
       <h2>Add maintenance charge</h2>
-      <SelectField label="From month" value={fromMonth} onChange={setFromMonth}>
-        <option value="">Select month</option>
-        {MONTHS.map((month) => (
-          <option key={month} value={month}>
-            {month}
-          </option>
-        ))}
-      </SelectField>
-      <SelectField label="To month" value={toMonth} onChange={setToMonth}>
-        <option value="">Select month</option>
-        {MONTHS.map((month) => (
-          <option key={month} value={month}>
-            {month}
-          </option>
-        ))}
-      </SelectField>
-      <SelectField label="Year" value={year} onChange={setYear}>
-        <option value="">Select year</option>
-        {YEARS.map((item) => (
-          <option key={item} value={item}>
-            {item}
-          </option>
-        ))}
-      </SelectField>
+
+      <div className="charge-mode-toggle" role="group" aria-label="Charge type">
+        <button
+          className={chargeMode === "monthly" ? "active" : ""}
+          onClick={() => setChargeMode("monthly")}
+          type="button"
+        >
+          <ReceiptText aria-hidden="true" size={17} strokeWidth={2.3} />
+          Monthly range
+        </button>
+        <button
+          className={chargeMode === "custom" ? "active" : ""}
+          onClick={() => setChargeMode("custom")}
+          type="button"
+        >
+          <WalletCards aria-hidden="true" size={17} strokeWidth={2.3} />
+          Custom amount
+        </button>
+      </div>
+
+      {isCustom ? (
+        <>
+          <TextField
+            label="Amount"
+            placeholder="Enter charge amount"
+            type="number"
+            value={customAmount}
+            onChange={setCustomAmount}
+          />
+          <TextareaField
+            label="Remarks"
+            placeholder="Example: Lift repair, parking charge, water tanker"
+            value={customRemark}
+            onChange={setCustomRemark}
+          />
+        </>
+      ) : (
+        <>
+          <SelectField label="From month" value={fromMonth} onChange={setFromMonth}>
+            <option value="">Select month</option>
+            {MONTHS.map((month) => (
+              <option key={month} value={month}>
+                {month}
+              </option>
+            ))}
+          </SelectField>
+          <SelectField label="To month" value={toMonth} onChange={setToMonth}>
+            <option value="">Select month</option>
+            {MONTHS.map((month) => (
+              <option key={month} value={month}>
+                {month}
+              </option>
+            ))}
+          </SelectField>
+          <SelectField label="Year" value={year} onChange={setYear}>
+            <option value="">Select year</option>
+            {YEARS.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </SelectField>
+        </>
+      )}
 
       <div className="calculation-card">
-        <span>{months} billing month(s)</span>
+        <span>{isCustom ? "Custom charge" : `${months} billing month(s)`}</span>
         <strong>{money(amount)}</strong>
       </div>
 
-      <button className="primary-button" disabled={!amount} onClick={onSubmit} type="button">
+      <button className="primary-button" disabled={!canSubmit} onClick={onSubmit} type="button">
         <Plus aria-hidden="true" size={18} strokeWidth={2.3} />
         Add charge
       </button>
@@ -950,13 +1060,15 @@ function AdminHistory({
               <strong>{payment.name}</strong>
               <span>Flat {payment.flat}</span>
               <span>
-                {payment.month} {payment.year}
+                {paymentLabel(payment)}
               </span>
             </div>
             <div>
               <strong>{money(payment.amount)}</strong>
               <span className={payment.status === "paid" ? "status-pill success" : "status-pill danger"}>
-                {payment.status === "paid" ? "Collected" : "Outstanding"}
+                {payment.status === "paid"
+                  ? `Collected${paymentMethodLabel(payment) ? ` · ${paymentMethodLabel(payment)}` : ""}`
+                  : "Outstanding"}
               </span>
             </div>
           </article>
@@ -993,7 +1105,7 @@ function ExportScreen({ excelFlat, setExcelFlat, dates, setDates, downloadExcel 
   );
 }
 
-function PendingScreen({ members }) {
+function PendingScreen({ members, recordCashPayment, deleteDue }) {
   const pending = members
     .filter((member) => member.role === "owner")
     .flatMap((member) =>
@@ -1010,12 +1122,13 @@ function PendingScreen({ members }) {
             <strong>{item.member.name}</strong>
             <span>Flat {item.member.flatNumber}</span>
             <span>
-              {item.month} {item.year}
+              {paymentLabel(item)}
             </span>
           </div>
           <div>
             <strong>{money(item.amount)}</strong>
             <span className="status-pill danger">Outstanding</span>
+            <DueActionButtons payment={item} recordCashPayment={recordCashPayment} deleteDue={deleteDue} />
           </div>
         </article>
       ))}
@@ -1160,7 +1273,7 @@ function OwnerDashboard({ data, setPage, payNow }) {
           <article className="payment-row compact" key={payment._id}>
             <div>
               <strong>
-                {payment.month} {payment.year}
+                {paymentLabel(payment)}
               </strong>
               <span>Receipt recorded</span>
             </div>
@@ -1185,7 +1298,7 @@ function OwnerPayments({ payments, title, emptyTitle, payNow, setPage }) {
         {payable.map((payment) => (
           <article className="bill-card" key={payment._id}>
             <p className="card-kicker">
-              {payment.month} {payment.year}
+              {paymentLabel(payment)}
             </p>
             <h2>{money(payment.amount)}</h2>
             <p>{title}</p>
@@ -1209,7 +1322,7 @@ function OwnerHistory({ paid, setPage }) {
           <article className="payment-row" key={payment._id}>
             <div>
               <strong>
-                {payment.month} {payment.year}
+                {paymentLabel(payment)}
               </strong>
               <span>Maintenance receipt</span>
             </div>
@@ -1332,9 +1445,12 @@ export default function SocietyApp() {
   });
   const [editMemberData, setEditMemberData] = useState(null);
   const [dueTarget, setDueTarget] = useState(null);
+  const [chargeMode, setChargeMode] = useState("monthly");
   const [fromMonth, setFromMonth] = useState("");
   const [toMonth, setToMonth] = useState("");
   const [year, setYear] = useState("");
+  const [customChargeAmount, setCustomChargeAmount] = useState("");
+  const [customChargeRemark, setCustomChargeRemark] = useState("");
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
@@ -1761,15 +1877,96 @@ export default function SocietyApp() {
     }
   };
 
+  const recordCashPayment = async (payment) => {
+    if (!payment?._id) {
+      notify("Due not found", "error");
+      return;
+    }
+
+    if (!window.confirm(`Mark ${paymentLabel(payment)} as cash received for ${money(payment.amount)}?`)) return;
+
+    try {
+      const message = await apiRequest("/record-cash-payment", {
+        method: "POST",
+        token,
+        responseType: "text",
+        body: { paymentId: payment._id },
+      });
+      notify(message || "Cash payment recorded");
+      await loadData();
+    } catch (error) {
+      notify(error.message || "Cash payment could not be recorded", "error");
+    }
+  };
+
+  const deleteDue = async (payment) => {
+    if (!payment?._id) {
+      notify("Due not found", "error");
+      return;
+    }
+
+    if (!window.confirm(`Delete ${paymentLabel(payment)} due for ${money(payment.amount)}?`)) return;
+
+    try {
+      const message = await apiRequest(`/due/${payment._id}`, {
+        method: "DELETE",
+        token,
+        responseType: "text",
+      });
+      notify(message || "Due deleted");
+      await loadData();
+    } catch (error) {
+      notify(error.message || "Due could not be deleted", "error");
+    }
+  };
+
   const openDue = (member) => {
     setDueTarget(member);
+    setChargeMode("monthly");
     setFromMonth("");
     setToMonth("");
     setYear("");
+    setCustomChargeAmount("");
+    setCustomChargeRemark("");
     setPage("addDue");
   };
 
   const addDue = async () => {
+    const isCustomCharge = chargeMode === "custom";
+
+    if (isCustomCharge) {
+      const amount = Number(customChargeAmount || 0);
+      const description = customChargeRemark.trim();
+
+      if (!dueTarget?._id || !Number.isFinite(amount) || amount <= 0 || !description) {
+        notify("Enter a valid amount and remarks", "error");
+        return;
+      }
+
+      try {
+        await apiRequest("/add-due", {
+          method: "POST",
+          token,
+          responseType: "text",
+          body: {
+            memberId: dueTarget._id,
+            amount,
+            description,
+            chargeType: "custom",
+          },
+        });
+        notify("Custom charge added");
+        setCustomChargeAmount("");
+        setCustomChargeRemark("");
+        await loadData();
+        setPage("members");
+      } catch (error) {
+        notify(error.message || "Custom charge could not be added", "error");
+      }
+
+      return;
+    }
+
     const start = monthIndex(fromMonth);
     const end = monthIndex(toMonth);
     const months = start >= 0 && end >= start ? end - start + 1 : 0;
@@ -1973,6 +2170,8 @@ export default function SocietyApp() {
             openEdit={openEditMember}
             deleteMember={deleteMember}
             sendReminder={sendReminder}
+            recordCashPayment={recordCashPayment}
+            deleteDue={deleteDue}
           />
         )}
 
@@ -2001,18 +2200,26 @@ export default function SocietyApp() {
         {role === "admin" && page === "addDue" && (
           <AddDueScreen
             member={dueTarget}
+            chargeMode={chargeMode}
+            setChargeMode={setChargeMode}
             fromMonth={fromMonth}
             setFromMonth={setFromMonth}
             toMonth={toMonth}
             setToMonth={setToMonth}
             year={year}
             setYear={setYear}
+            customAmount={customChargeAmount}
+            setCustomAmount={setCustomChargeAmount}
+            customRemark={customChargeRemark}
+            setCustomRemark={setCustomChargeRemark}
             onSubmit={addDue}
             onBack={() => setPage("members")}
           />
         )}
 
-        {role === "admin" && page === "pending" && <PendingScreen members={adminMembers} />}
+        {role === "admin" && page === "pending" && (
+          <PendingScreen members={adminMembers} recordCashPayment={recordCashPayment} deleteDue={deleteDue} />
+        )}
 
         {role === "admin" && page === "history" && (
           <AdminHistory

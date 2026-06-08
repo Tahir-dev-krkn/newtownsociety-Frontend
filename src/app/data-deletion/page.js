@@ -17,7 +17,7 @@ export default function DataDeletionPage() {
 
       <h2>How to Request Data Deletion</h2>
       <p>
-        Send an email to ntsociety98@gmail.com with the subject line "New Town Society Data Deletion Request".
+        Send an email to ntsociety98@gmail.com with the subject line &quot;New Town Society Data Deletion Request&quot;.
       </p>
       <p>
         Include your name, flat number, registered phone number, and registered email address so the society admin can verify
