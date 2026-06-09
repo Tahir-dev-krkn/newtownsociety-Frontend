@@ -1318,20 +1318,24 @@ function OwnerHistory({ paid, setPage }) {
         <BackButton onClick={() => setPage("dashboard")} />
       </div>
       <section className="list-grid">
-        {(paid || []).map((payment) => (
-          <article className="payment-row" key={payment._id}>
-            <div>
-              <strong>
-                {paymentLabel(payment)}
-              </strong>
-              <span>Maintenance receipt</span>
-            </div>
-            <div>
-              <strong>{money(payment.amount)}</strong>
-              <span className="status-pill success">Paid</span>
-            </div>
-          </article>
-        ))}
+        {(paid || []).map((payment) => {
+          const methodLabel = paymentMethodLabel(payment);
+
+          return (
+            <article className="payment-row" key={payment._id}>
+              <div>
+                <strong>
+                  {paymentLabel(payment)}
+                </strong>
+                <span>Maintenance receipt</span>
+              </div>
+              <div>
+                <strong>{money(payment.amount)}</strong>
+                <span className="status-pill success">{methodLabel ? `Paid · ${methodLabel}` : "Paid"}</span>
+              </div>
+            </article>
+          );
+        })}
       </section>
       {(paid || []).length === 0 && <EmptyState title="No receipts available" />}
     </>
@@ -1883,14 +1887,34 @@ export default function SocietyApp() {
       return;
     }
 
-    if (!window.confirm(`Mark ${paymentLabel(payment)} as cash received for ${money(payment.amount)}?`)) return;
+    const dueAmount = Number(payment.amount || 0);
+    const enteredAmount = window.prompt(
+      `Cash received for ${paymentLabel(payment)}. Maximum ${money(dueAmount)}`,
+      String(dueAmount)
+    );
+
+    if (enteredAmount === null) return;
+
+    const cashAmount = Number(String(enteredAmount).replace(/,/g, "").trim());
+
+    if (!Number.isFinite(cashAmount) || cashAmount <= 0) {
+      notify("Enter a valid cash amount", "error");
+      return;
+    }
+
+    if (cashAmount > dueAmount) {
+      notify("Cash amount cannot exceed the due amount", "error");
+      return;
+    }
+
+    if (!window.confirm(`Record cash received: ${money(cashAmount)} for ${paymentLabel(payment)}?`)) return;
 
     try {
       const message = await apiRequest("/record-cash-payment", {
         method: "POST",
         token,
         responseType: "text",
-        body: { paymentId: payment._id },
+        body: { paymentId: payment._id, amount: cashAmount },
       });
       notify(message || "Cash payment recorded");
       await loadData();
