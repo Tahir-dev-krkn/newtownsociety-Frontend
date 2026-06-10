@@ -335,6 +335,15 @@ a {
   height: 48px;
   border-radius: 14px;
   font-weight: 800;
+  overflow: hidden;
+  background: #07162c;
+}
+
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .brand-name,

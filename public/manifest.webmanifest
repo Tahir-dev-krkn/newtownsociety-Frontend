@@ -1,6 +1,6 @@
 {
   "name": "New Town Society",
-  "short_name": "NT Society",
+  "short_name": "NTS",
   "description": "Society maintenance payments, dues, reports, and support.",
   "start_url": "/",
   "scope": "/",
@@ -11,21 +11,15 @@
   "categories": ["finance", "productivity", "utilities"],
   "icons": [
     {
-      "src": "/icons/new-town-icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/new-town-icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/new-town-icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ],

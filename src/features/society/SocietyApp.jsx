@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { Bar } from "react-chartjs-2";
 import {
   BarElement,
@@ -14,7 +15,6 @@ import {
   AlertCircle,
   ArrowLeft,
   Bell,
-  Building2,
   CheckCircle2,
   CreditCard,
   Download,
@@ -158,7 +158,7 @@ function Brand() {
   return (
     <div className="brand">
       <div className="brand-mark">
-        <Building2 aria-hidden="true" size={24} strokeWidth={2.4} />
+        <Image alt="" aria-hidden="true" src="/logo.png" width={48} height={48} priority />
       </div>
       <div>
         <p className="brand-name">New Town Society</p>
