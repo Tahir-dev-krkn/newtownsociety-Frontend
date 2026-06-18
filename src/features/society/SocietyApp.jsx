@@ -1761,6 +1761,7 @@ export default function SocietyApp() {
         handler: async (response) => {
           await apiRequest("/verify-payment", {
             method: "POST",
+            token,
             body: {
               paymentId: payment._id,
               razorpay_payment_id: response.razorpay_payment_id,
