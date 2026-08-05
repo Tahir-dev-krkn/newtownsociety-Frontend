@@ -39,7 +39,13 @@ import {
   Users,
   WalletCards,
 } from "lucide-react";
-import { apiRequest, downloadFile } from "./api";
+import {
+  apiRequest,
+  downloadFile,
+  isColdStartError,
+  wakeServer,
+  COLD_START_TIMEOUT_MS,
+} from "./api";
 import { ADMIN_NAV, MONTHS, OWNER_NAV, RAZORPAY_KEY, YEARS } from "./constants";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -1528,6 +1534,10 @@ export default function SocietyApp() {
   }, [loadComplaints, notify, page, role, token]);
 
   useEffect(() => {
+    // Start the API booting straight away — it may have been asleep, and the
+    // first real request should not be the one paying for the cold start.
+    wakeServer();
+
     const searchParams = new URLSearchParams(window.location.search);
     const linkResetToken = searchParams.get("resetToken");
     const linkResetEmail = searchParams.get("email");
@@ -1573,6 +1583,25 @@ export default function SocietyApp() {
     document.body.appendChild(script);
   }, []);
 
+  const requestLogin = async () => {
+    const options = {
+      method: "POST",
+      body: { flatNumber: flat.trim(), password },
+      timeoutMs: COLD_START_TIMEOUT_MS,
+    };
+
+    try {
+      return await apiRequest("/login", options);
+    } catch (error) {
+      if (!isColdStartError(error)) throw error;
+
+      // The first attempt can die while the server is still coming up; the
+      // second one lands on a warm instance.
+      await wakeServer();
+      return apiRequest("/login", options);
+    }
+  };
+
   const login = async () => {
     if (!flat.trim() || !password) {
       notify("Enter flat number and password", "error");
@@ -1580,11 +1609,14 @@ export default function SocietyApp() {
     }
 
     setBusy(true);
+    // Sleeping server: say so rather than leaving the button spinning silently.
+    const wakingNotice = window.setTimeout(
+      () => notify("Waking up the server, this can take up to a minute..."),
+      6000,
+    );
+
     try {
-      const response = await apiRequest("/login", {
-        method: "POST",
-        body: { flatNumber: flat.trim(), password },
-      });
+      const response = await requestLogin();
 
       if (!response?.success) {
         if (response?.verificationRequired) {
@@ -1606,8 +1638,14 @@ export default function SocietyApp() {
       setPage("dashboard");
       notify("Signed in successfully");
     } catch (error) {
-      notify(error.message || "Sign in failed", "error");
+      notify(
+        isColdStartError(error)
+          ? "Server did not respond in time. Please try again in a minute."
+          : error.message || "Sign in failed",
+        "error",
+      );
     } finally {
+      window.clearTimeout(wakingNotice);
       setBusy(false);
     }
   };

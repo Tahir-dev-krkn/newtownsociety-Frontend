@@ -1,6 +1,9 @@
 import { API_BASE } from "./constants";
 
-const REQUEST_TIMEOUT_MS = 15000;
+// The API sleeps on Render's free tier and a cold start can take the better
+// part of a minute, so the budget has to outlast a waking server.
+const REQUEST_TIMEOUT_MS = 45000;
+export const COLD_START_TIMEOUT_MS = 90000;
 
 export async function apiRequest(path, options = {}) {
   const {
@@ -9,6 +12,7 @@ export async function apiRequest(path, options = {}) {
     body,
     responseType = "json",
     headers: customHeaders = {},
+    timeoutMs = REQUEST_TIMEOUT_MS,
   } = options;
 
   if (!API_BASE && !path.startsWith("http")) {
@@ -29,7 +33,7 @@ export async function apiRequest(path, options = {}) {
   }
 
   const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
   init.signal = controller.signal;
 
   let response;
@@ -61,7 +65,9 @@ export async function apiRequest(path, options = {}) {
 
   if (!response.ok) {
     const message =
-      typeof payload === "string" ? payload : payload?.error || "Request failed";
+      typeof payload === "string"
+        ? payload
+        : payload?.message || payload?.error || "Request failed";
     throw new Error(message);
   }
 
@@ -70,6 +76,33 @@ export async function apiRequest(path, options = {}) {
   }
 
   return payload;
+}
+
+let wakeUpRequest = null;
+
+// Called as soon as the app loads so a sleeping API is already booting by the
+// time somebody finishes typing their password.
+export function wakeServer() {
+  if (!API_BASE) return Promise.resolve(false);
+
+  if (!wakeUpRequest) {
+    wakeUpRequest = apiRequest("/health", { timeoutMs: COLD_START_TIMEOUT_MS })
+      .then(() => true)
+      .catch(() => {
+        wakeUpRequest = null;
+        return false;
+      });
+  }
+
+  return wakeUpRequest;
+}
+
+// A request that died because the server was still coming up, rather than
+// because it answered with a real error.
+export function isColdStartError(error) {
+  return /timed out|failed to fetch|networkerror|load failed|waking up/i.test(
+    error?.message || "",
+  );
 }
 
 export function downloadFile(blob, fileName) {
