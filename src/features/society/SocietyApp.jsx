@@ -92,6 +92,7 @@ const ADMIN_TITLES = {
   history: "Payment records",
   excel: "Reports",
   complaints: "Service requests",
+  account: "My account",
 };
 
 const OWNER_TITLES = {
@@ -1405,6 +1406,86 @@ function EditProfile({ phone, setPhone, email, setEmail, updateProfile, setPage 
   );
 }
 
+function AdminAccount({
+  profile,
+  phone,
+  setPhone,
+  email,
+  setEmail,
+  saveProfile,
+  currentPassword,
+  setCurrentPassword,
+  newPassword,
+  setNewPassword,
+  changePassword,
+  busy,
+  setPage,
+  logout,
+}) {
+  return (
+    <>
+      <div className="profile-card">
+        <div className="avatar">{(profile?.name || "A").slice(0, 1).toUpperCase()}</div>
+        <h2>{profile?.name || "Society Admin"}</h2>
+        <p>Management login · {profile?.flatNumber || "--"}</p>
+        <div className="profile-lines">
+          <span>
+            <Phone aria-hidden="true" size={15} strokeWidth={2.3} />
+            {profile?.phone || "Phone not added"}
+          </span>
+          <span>
+            <Mail aria-hidden="true" size={15} strokeWidth={2.3} />
+            {profile?.email || "Email not added"}
+          </span>
+        </div>
+      </div>
+
+      <section className="form-panel">
+        <h2>Contact details</h2>
+        <TextField label="Phone number" value={phone} onChange={setPhone} />
+        <TextField label="Email address" value={email} onChange={setEmail} />
+        <p className="muted">
+          Keep an email here — it is what the password reset link is sent to.
+        </p>
+        <button className="primary-button" disabled={busy} onClick={saveProfile} type="button">
+          <CheckCircle2 aria-hidden="true" size={18} strokeWidth={2.3} />
+          Save changes
+        </button>
+      </section>
+
+      <section className="form-panel">
+        <h2>Change password</h2>
+        <TextField
+          label="Current password"
+          type="password"
+          value={currentPassword}
+          onChange={setCurrentPassword}
+        />
+        <TextField
+          label="New password"
+          type="password"
+          value={newPassword}
+          onChange={setNewPassword}
+          placeholder="At least 8 characters"
+        />
+        <button className="primary-button" disabled={busy} onClick={changePassword} type="button">
+          <ShieldCheck aria-hidden="true" size={18} strokeWidth={2.3} />
+          Update password
+        </button>
+      </section>
+
+      <button className="secondary-button full" onClick={() => setPage("dashboard")} type="button">
+        Back to overview
+      </button>
+
+      <button className="danger-button full" onClick={logout} type="button">
+        <LogOut aria-hidden="true" size={18} strokeWidth={2.3} />
+        Logout
+      </button>
+    </>
+  );
+}
+
 function SupportScreen({ complaint, setComplaint, submitComplaint, setPage }) {
   return (
     <section className="form-panel">
@@ -1481,6 +1562,10 @@ export default function SocietyApp() {
   const [editEmail, setEditEmail] = useState("");
   const [complaint, setComplaint] = useState("");
 
+  const [adminProfile, setAdminProfile] = useState(null);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [changedPassword, setChangedPassword] = useState("");
+
   const notify = useCallback((message, type = "success") => {
     setToast({ message, type });
     window.setTimeout(() => setToast({ message: "", type: "success" }), 3200);
@@ -1517,6 +1602,13 @@ export default function SocietyApp() {
 
         if (page === "complaints") {
           await loadComplaints();
+        }
+
+        if (page === "account") {
+          const me = await apiRequest("/me", { token });
+          setAdminProfile(me);
+          setEditPhone(me?.phone || "");
+          setEditEmail(me?.email || "");
         }
       }
 
@@ -2111,6 +2203,54 @@ export default function SocietyApp() {
     }
   };
 
+  const saveAdminProfile = async () => {
+    setBusy(true);
+    try {
+      await apiRequest("/update-profile", {
+        method: "PUT",
+        token,
+        responseType: "text",
+        body: { phone: editPhone, email: editEmail },
+      });
+      const me = await apiRequest("/me", { token });
+      setAdminProfile(me);
+      notify("Account updated");
+    } catch (error) {
+      notify(error.message || "Account update failed", "error");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const changePassword = async () => {
+    if (!currentPassword || !changedPassword) {
+      notify("Enter your current and new password", "error");
+      return;
+    }
+
+    if (changedPassword.length < 8) {
+      notify("New password must be at least 8 characters", "error");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      await apiRequest("/change-password", {
+        method: "POST",
+        token,
+        responseType: "text",
+        body: { currentPassword, newPassword: changedPassword },
+      });
+      setCurrentPassword("");
+      setChangedPassword("");
+      notify("Password updated");
+    } catch (error) {
+      notify(error.message || "Could not update password", "error");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const submitComplaint = async () => {
     if (!complaint.trim()) {
       notify("Write your request details", "error");
@@ -2204,9 +2344,18 @@ export default function SocietyApp() {
         onLogout={logout}
         headerActions={
           role === "admin" ? (
-            <button className="secondary-button slim" onClick={openComplaints} type="button">
-              Requests
-            </button>
+            <>
+              <button className="secondary-button slim" onClick={openComplaints} type="button">
+                Requests
+              </button>
+              <button
+                className="secondary-button slim"
+                onClick={() => setPage("account")}
+                type="button"
+              >
+                Account
+              </button>
+            </>
           ) : null
         }
       >
@@ -2305,6 +2454,25 @@ export default function SocietyApp() {
 
         {role === "admin" && page === "complaints" && (
           <ComplaintsScreen complaints={complaints} loadComplaints={loadComplaints} />
+        )}
+
+        {role === "admin" && page === "account" && (
+          <AdminAccount
+            profile={adminProfile}
+            phone={editPhone}
+            setPhone={setEditPhone}
+            email={editEmail}
+            setEmail={setEditEmail}
+            saveProfile={saveAdminProfile}
+            currentPassword={currentPassword}
+            setCurrentPassword={setCurrentPassword}
+            newPassword={changedPassword}
+            setNewPassword={setChangedPassword}
+            changePassword={changePassword}
+            busy={busy}
+            setPage={setPage}
+            logout={logout}
+          />
         )}
 
         {role === "owner" && page === "dashboard" && (
