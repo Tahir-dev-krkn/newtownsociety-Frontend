@@ -31,22 +31,11 @@ function isAuthorized(request) {
   return Boolean(expectedSecret && actualSecret && actualSecret === expectedSecret);
 }
 
-function isSafeNewTownMail({ to, subject, text }) {
-  const validEmail = typeof to === "string" && /^\S+@\S+\.\S+$/.test(to);
-  const validSubject =
-    subject === "Verify your New Town Society account" ||
-    subject === "Reset your New Town Society password";
-  const validBrandText = typeof text === "string" && text.includes("New Town Society");
-  const validVerification = subject === "Verify your New Town Society account"
-    && text.includes("email verification OTP");
-  const validReset = subject === "Reset your New Town Society password"
-    && text.includes("reset your New Town Society password")
-    && text.includes("resetToken=");
-
-  return validEmail && validSubject && validBrandText && (validVerification || validReset);
-}
-
 export async function GET(request) {
+  if (!isAuthorized(request)) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const transporter = await createTransporter();
     await transporter.verify();
@@ -69,15 +58,18 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  // The shared secret is the only thing allowed through. This used to also
+  // accept any unauthenticated caller whose subject and body looked like ours,
+  // which let anyone on the internet send mail from the society address.
+  if (!isAuthorized(request)) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { to, subject, text } = await request.json();
 
     if (!to || !subject || !text) {
       return Response.json({ error: "Missing email fields" }, { status: 400 });
-    }
-
-    if (!isAuthorized(request) && !isSafeNewTownMail({ to, subject, text })) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const transporter = await createTransporter();
