@@ -1406,6 +1406,68 @@ function EditProfile({ phone, setPhone, email, setEmail, updateProfile, setPage 
   );
 }
 
+// Shown instead of the dashboard when a resident is still on the flat-number
+// password they were given. There is deliberately no way past it except
+// setting a password, or logging out.
+function FirstPasswordScreen({
+  needsCurrent,
+  currentPassword,
+  setCurrentPassword,
+  newPassword,
+  setNewPassword,
+  confirmPassword,
+  setConfirmPassword,
+  submit,
+  busy,
+  logout,
+}) {
+  return (
+    <main className="auth-screen single">
+      <section className="auth-card">
+        <Brand />
+        <h2>Create your password</h2>
+        <p className="muted">
+          Your account still uses the flat number you signed in with. Choose a
+          private password to finish setting up your account.
+        </p>
+
+        {needsCurrent && (
+          <TextField
+            label="Current password"
+            type="password"
+            value={currentPassword}
+            onChange={setCurrentPassword}
+            placeholder="Your flat number"
+          />
+        )}
+
+        <TextField
+          label="New password"
+          type="password"
+          value={newPassword}
+          onChange={setNewPassword}
+          placeholder="At least 8 characters"
+        />
+        <TextField
+          label="Confirm new password"
+          type="password"
+          value={confirmPassword}
+          onChange={setConfirmPassword}
+        />
+
+        <button className="primary-button" disabled={busy} onClick={submit} type="button">
+          <ShieldCheck aria-hidden="true" size={18} strokeWidth={2.3} />
+          Save and continue
+        </button>
+
+        <button className="text-button" onClick={logout} type="button">
+          Sign out instead
+        </button>
+      </section>
+    </main>
+  );
+}
+
 function AdminAccount({
   profile,
   phone,
@@ -1565,6 +1627,8 @@ export default function SocietyApp() {
   const [adminProfile, setAdminProfile] = useState(null);
   const [currentPassword, setCurrentPassword] = useState("");
   const [changedPassword, setChangedPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [mustChangePassword, setMustChangePassword] = useState(false);
 
   const notify = useCallback((message, type = "success") => {
     setToast({ message, type });
@@ -1655,6 +1719,7 @@ export default function SocietyApp() {
       setToken(savedToken);
       setRole(savedRole);
       setPage("dashboard");
+      setMustChangePassword(localStorage.getItem("mustChangePassword") === "1");
     }
 
     setLoading(false);
@@ -1728,6 +1793,15 @@ export default function SocietyApp() {
       setToken(response.token);
       setRole(response.role);
       setPage("dashboard");
+
+      if (response.mustChangePassword) {
+        // Survives a refresh, so the setup screen cannot be skipped by
+        // reloading the page.
+        localStorage.setItem("mustChangePassword", "1");
+        setMustChangePassword(true);
+        return;
+      }
+
       notify("Signed in successfully");
     } catch (error) {
       notify(
@@ -2222,6 +2296,48 @@ export default function SocietyApp() {
     }
   };
 
+  const completeFirstPassword = async () => {
+    // After a refresh the login password is gone from memory, so ask for it.
+    const current = password || currentPassword;
+
+    if (!current) {
+      notify("Enter your current password", "error");
+      return;
+    }
+
+    if (changedPassword.length < 8) {
+      notify("New password must be at least 8 characters", "error");
+      return;
+    }
+
+    if (changedPassword !== confirmPassword) {
+      notify("Both passwords must match", "error");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      await apiRequest("/change-password", {
+        method: "POST",
+        token,
+        responseType: "text",
+        body: { currentPassword: current, newPassword: changedPassword },
+      });
+
+      localStorage.removeItem("mustChangePassword");
+      setMustChangePassword(false);
+      setCurrentPassword("");
+      setChangedPassword("");
+      setConfirmPassword("");
+      setPassword("");
+      notify("Password saved. Welcome!");
+    } catch (error) {
+      notify(error.message || "Could not save password", "error");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const changePassword = async () => {
     if (!currentPassword || !changedPassword) {
       notify("Enter your current and new password", "error");
@@ -2319,6 +2435,26 @@ export default function SocietyApp() {
             busy={busy}
           />
         )}
+        <Toast toast={toast} />
+      </>
+    );
+  }
+
+  if (mustChangePassword) {
+    return (
+      <>
+        <FirstPasswordScreen
+          needsCurrent={!password}
+          currentPassword={currentPassword}
+          setCurrentPassword={setCurrentPassword}
+          newPassword={changedPassword}
+          setNewPassword={setChangedPassword}
+          confirmPassword={confirmPassword}
+          setConfirmPassword={setConfirmPassword}
+          submit={completeFirstPassword}
+          busy={busy}
+          logout={logout}
+        />
         <Toast toast={toast} />
       </>
     );

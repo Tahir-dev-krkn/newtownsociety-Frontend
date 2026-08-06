@@ -63,6 +63,12 @@ a {
   padding: 24px;
 }
 
+/* Auth layouts with a single card and no marketing panel beside it. */
+.auth-screen.single {
+  grid-template-columns: minmax(0, 460px);
+  justify-content: center;
+}
+
 .landing-screen {
   min-height: 100vh;
   display: grid;
