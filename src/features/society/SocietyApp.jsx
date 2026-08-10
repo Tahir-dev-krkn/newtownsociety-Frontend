@@ -1087,7 +1087,15 @@ function AdminHistory({
   );
 }
 
-function ExportScreen({ excelFlat, setExcelFlat, dates, setDates, downloadExcel }) {
+function ExportScreen({
+  excelFlat,
+  setExcelFlat,
+  dates,
+  setDates,
+  downloadExcel,
+  downloadPendingPdf,
+  pendingPdfBusy,
+}) {
   return (
     <section className="form-panel">
       <h2>Download payment report</h2>
@@ -1108,6 +1116,23 @@ function ExportScreen({ excelFlat, setExcelFlat, dates, setDates, downloadExcel 
         <Download aria-hidden="true" size={18} strokeWidth={2.3} />
         Download report
       </button>
+
+      <div style={{ marginTop: 20, borderTop: "1px solid rgba(148,163,184,0.35)", paddingTop: 18 }}>
+        <h2>All members' pending report</h2>
+        <p style={{ margin: "0 0 14px", fontSize: 13, opacity: 0.75 }}>
+          One PDF with every member's pending dues and totals. Click, wait a few
+          seconds, and it downloads.
+        </p>
+        <button
+          className="primary-button"
+          onClick={downloadPendingPdf}
+          type="button"
+          disabled={pendingPdfBusy}
+        >
+          <Download aria-hidden="true" size={18} strokeWidth={2.3} />
+          {pendingPdfBusy ? "Preparing PDF…" : "Download pending report (PDF)"}
+        </button>
+      </div>
     </section>
   );
 }
@@ -1619,6 +1644,7 @@ export default function SocietyApp() {
   });
   const [excelFlat, setExcelFlat] = useState("");
   const [exportDates, setExportDates] = useState({ from: "", to: "" });
+  const [pendingPdfBusy, setPendingPdfBusy] = useState(false);
 
   const [editPhone, setEditPhone] = useState("");
   const [editEmail, setEditEmail] = useState("");
@@ -2257,6 +2283,21 @@ export default function SocietyApp() {
     }
   };
 
+  const downloadPendingPdf = async () => {
+    setPendingPdfBusy(true);
+    try {
+      const blob = await apiRequest("/export-pending-pdf", {
+        token,
+        responseType: "blob",
+      });
+      downloadFile(blob, "pending-report.pdf");
+    } catch (error) {
+      notify(error.message || "Could not download pending report", "error");
+    } finally {
+      setPendingPdfBusy(false);
+    }
+  };
+
   const updateProfile = async () => {
     try {
       await apiRequest("/update-profile", {
@@ -2585,6 +2626,8 @@ export default function SocietyApp() {
             dates={exportDates}
             setDates={setExportDates}
             downloadExcel={downloadExcel}
+            downloadPendingPdf={downloadPendingPdf}
+            pendingPdfBusy={pendingPdfBusy}
           />
         )}
 
